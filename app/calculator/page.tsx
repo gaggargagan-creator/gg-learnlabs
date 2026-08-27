@@ -1,658 +1,428 @@
 "use client";
 
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useState } from "react";
 
-type Metric = {
-  name: string;
-  score: number;
-  weight: number;
-};
+export default function TrainingEffectivenessCalculator() {
+  const [trainerObservation, setTrainerObservation] = useState(80);
+  const [participantFeedback, setParticipantFeedback] = useState(80);
+  const [knowledgeAssessment, setKnowledgeAssessment] = useState(80);
+  const [learningApplication, setLearningApplication] = useState(80);
+  const [attendanceCompletion, setAttendanceCompletion] = useState(80);
 
-type TextField = [
-  string,
-  string,
-  Dispatch<SetStateAction<string>>,
-  string,
-  string
-];
-
-type ScoreField = [
-  string,
-  string,
-  Dispatch<SetStateAction<string>>
-];
-
-export default function Calculator() {
-  // Training Details
-  const [programName, setProgramName] = useState("");
-  const [trainerName, setTrainerName] = useState("");
-  const [trainingDate, setTrainingDate] = useState("");
-  const [department, setDepartment] = useState("");
-  const [participants, setParticipants] = useState("");
-
-  // Effectiveness Scores
-  const [trainerObservation, setTrainerObservation] = useState("");
-  const [participantFeedback, setParticipantFeedback] = useState("");
-  const [knowledgeAssessment, setKnowledgeAssessment] = useState("");
-  const [learningApplication, setLearningApplication] = useState("");
-  const [attendanceCompletion, setAttendanceCompletion] = useState("");
-
-  const [showResults, setShowResults] = useState(false);
-
-  // Numeric Scores
-  const trainerScore = Number(trainerObservation) || 0;
-  const feedbackScore = Number(participantFeedback) || 0;
-  const knowledgeScore = Number(knowledgeAssessment) || 0;
-  const applicationScore = Number(learningApplication) || 0;
-  const attendanceScore = Number(attendanceCompletion) || 0;
-
-  const metrics: Metric[] = [
+  const categories = [
     {
-      name: "Trainer Observation",
-      score: trainerScore,
-      weight: 35,
-    },
-    {
-      name: "Participant Feedback",
-      score: feedbackScore,
+      label: "Trainer Observation",
+      description:
+        "Evaluate how effectively the trainer delivered the session.",
+      score: trainerObservation,
+      setScore: setTrainerObservation,
       weight: 20,
     },
     {
-      name: "Knowledge Assessment",
-      score: knowledgeScore,
-      weight: 15,
-    },
-    {
-      name: "Learning Application",
-      score: applicationScore,
+      label: "Participant Feedback",
+      description:
+        "Measure how participants perceived the training experience.",
+      score: participantFeedback,
+      setScore: setParticipantFeedback,
       weight: 20,
     },
     {
-      name: "Attendance / Completion",
-      score: attendanceScore,
+      label: "Knowledge Assessment",
+      description:
+        "Measure knowledge gained through assessments or evaluations.",
+      score: knowledgeAssessment,
+      setScore: setKnowledgeAssessment,
+      weight: 20,
+    },
+    {
+      label: "Learning Application",
+      description:
+        "Measure how effectively participants apply learning on the job.",
+      score: learningApplication,
+      setScore: setLearningApplication,
+      weight: 30,
+    },
+    {
+      label: "Attendance / Completion",
+      description:
+        "Measure attendance and successful completion of the program.",
+      score: attendanceCompletion,
+      setScore: setAttendanceCompletion,
       weight: 10,
     },
   ];
 
-  // Overall Score
   const overallScore =
-    trainerScore * 0.35 +
-    feedbackScore * 0.2 +
-    knowledgeScore * 0.15 +
-    applicationScore * 0.2 +
-    attendanceScore * 0.1;
+    trainerObservation * 0.2 +
+    participantFeedback * 0.2 +
+    knowledgeAssessment * 0.2 +
+    learningApplication * 0.3 +
+    attendanceCompletion * 0.1;
 
-  const getStatus = (score: number) => {
-    if (score >= 90) return "Strong";
-    if (score >= 85) return "Good";
-    if (score >= 75) return "Needs Focus";
-    return "Critical Improvement Required";
+  const roundedScore = Math.round(overallScore);
+
+  const getEffectiveness = () => {
+    if (roundedScore >= 90) {
+      return {
+        level: "Excellent",
+        description:
+          "The training is performing extremely well across the measured indicators.",
+      };
+    }
+
+    if (roundedScore >= 75) {
+      return {
+        level: "Effective",
+        description:
+          "The training is delivering strong results with some opportunities for improvement.",
+      };
+    }
+
+    if (roundedScore >= 60) {
+      return {
+        level: "Moderately Effective",
+        description:
+          "The training is showing positive results, but certain areas need attention.",
+      };
+    }
+
+    if (roundedScore >= 40) {
+      return {
+        level: "Needs Improvement",
+        description:
+          "The training requires focused improvement in one or more key areas.",
+      };
+    }
+
+    return {
+      level: "Critical Attention Needed",
+      description:
+        "The training requires significant review and intervention.",
+    };
   };
 
-  const hasMetricBelow75 = metrics.some(
-    (metric) => metric.score < 75
+  const effectiveness = getEffectiveness();
+
+  const highestCategory = categories.reduce((highest, category) =>
+    category.score > highest.score ? category : highest
   );
 
-  const getRating = () => {
-    if (
-      overallScore < 85 ||
-      trainerScore < 80 ||
-      applicationScore < 70
-    ) {
-      return "Needs Improvement";
-    }
-
-    if (overallScore >= 90 && !hasMetricBelow75) {
-      return "Effective";
-    }
-
-    return "Satisfactory";
-  };
-
-  const rating = getRating();
-
-  const strongestMetric = metrics.reduce((highest, metric) =>
-    metric.score > highest.score ? metric : highest
+  const lowestCategory = categories.reduce((lowest, category) =>
+    category.score < lowest.score ? category : lowest
   );
 
-  const weakestMetric = metrics.reduce((lowest, metric) =>
-    metric.score < lowest.score ? metric : lowest
-  );
-
-  const improvementAreas = metrics.filter(
-    (metric) => metric.score < 85
-  );
-
-  const getRecommendation = () => {
-    if (trainerScore < 80) {
-      return "Trainer Observation is below the required threshold. Focus on strengthening facilitation skills, session structure, learner engagement, communication and trainer effectiveness.";
-    }
-
-    if (applicationScore < 70) {
-      return "Learning Application is critically low. Strengthen learning transfer through manager involvement, post-training follow-ups, on-the-job assignments, reinforcement and coaching.";
-    }
-
-    if (weakestMetric.name === "Participant Feedback") {
-      return "Review participant feedback to identify opportunities to improve facilitation, learner engagement, content relevance and the overall learning experience.";
-    }
-
-    if (weakestMetric.name === "Knowledge Assessment") {
-      return "Review the training content and assessment approach. Include more practice, activities, knowledge checks and opportunities for learners to apply concepts.";
-    }
-
-    if (weakestMetric.name === "Learning Application") {
-      return "Strengthen learning transfer through post-training reinforcement, manager follow-ups, practical assignments and on-the-job coaching.";
-    }
-
-    if (weakestMetric.name === "Attendance / Completion") {
-      return "Review learner availability, scheduling, communication and manager support to improve training attendance and completion.";
-    }
-
-    if (rating === "Effective") {
-      return "Training effectiveness is strong. Continue the current approach while maintaining consistency across all performance metrics.";
-    }
-
-    return "Focus on improving the lower-performing metrics while maintaining performance in the strongest areas.";
+  const resetCalculator = () => {
+    setTrainerObservation(80);
+    setParticipantFeedback(80);
+    setKnowledgeAssessment(80);
+    setLearningApplication(80);
+    setAttendanceCompletion(80);
   };
 
-  const handleCalculate = () => {
-    const scoreValues = [
-      trainerObservation,
-      participantFeedback,
-      knowledgeAssessment,
-      learningApplication,
-      attendanceCompletion,
-    ];
+  const updateScore = (
+    value: string,
+    setter: React.Dispatch<React.SetStateAction<number>>
+  ) => {
+    let score = Number(value);
 
-    if (
-      programName.trim() === "" ||
-      trainerName.trim() === "" ||
-      trainingDate === "" ||
-      department.trim() === "" ||
-      participants === ""
-    ) {
-      alert("Please complete all Training / Program Details.");
-      return;
+    if (Number.isNaN(score)) {
+      score = 0;
     }
 
-    if (
-      scoreValues.some((value) => value === "") ||
-      metrics.some(
-        (metric) => metric.score < 0 || metric.score > 100
-      )
-    ) {
-      alert("Please enter valid scores between 0 and 100.");
-      return;
-    }
+    score = Math.max(0, Math.min(100, score));
 
-    setShowResults(true);
+    setter(score);
   };
-
-  const handleReset = () => {
-    setProgramName("");
-    setTrainerName("");
-    setTrainingDate("");
-    setDepartment("");
-    setParticipants("");
-
-    setTrainerObservation("");
-    setParticipantFeedback("");
-    setKnowledgeAssessment("");
-    setLearningApplication("");
-    setAttendanceCompletion("");
-
-    setShowResults(false);
-  };
-
-  const handleDownloadReport = () => {
-    window.print();
-  };
-
-  const fields: TextField[] = [
-    [
-      "Training / Program Name",
-      programName,
-      setProgramName,
-      "Example: Leadership Development Program",
-      "text",
-    ],
-    [
-      "Trainer Name",
-      trainerName,
-      setTrainerName,
-      "Enter trainer name",
-      "text",
-    ],
-    [
-      "Training Date",
-      trainingDate,
-      setTrainingDate,
-      "",
-      "date",
-    ],
-    [
-      "Department / Business Unit",
-      department,
-      setDepartment,
-      "Example: Operations",
-      "text",
-    ],
-    [
-      "Number of Participants",
-      participants,
-      setParticipants,
-      "Enter number of participants",
-      "number",
-    ],
-  ];
-
-  const scores: ScoreField[] = [
-    [
-      "Trainer Observation Score (%)",
-      trainerObservation,
-      setTrainerObservation,
-    ],
-    [
-      "Participant Feedback / L1 Score (%)",
-      participantFeedback,
-      setParticipantFeedback,
-    ],
-    [
-      "Knowledge Assessment Score (%)",
-      knowledgeAssessment,
-      setKnowledgeAssessment,
-    ],
-    [
-      "Learning Application / Transfer Score (%)",
-      learningApplication,
-      setLearningApplication,
-    ],
-    [
-      "Training Attendance / Completion Score (%)",
-      attendanceCompletion,
-      setAttendanceCompletion,
-    ],
-  ];
 
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-10 text-white">
-      <div className="mx-auto max-w-5xl">
+    <main className="min-h-screen bg-slate-950 text-white">
+      {/* Header */}
+      <header className="border-b border-white/10 bg-slate-950/80 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
+          <a
+            href="../"
+            className="text-xl font-bold tracking-tight transition hover:text-blue-400"
+          >
+            GG <span className="text-blue-400">LearnLabs</span>
+          </a>
 
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold">
-            Training Effectiveness Calculator
+          <a
+            href="../"
+            className="rounded-lg border border-white/10 px-4 py-2 text-sm text-slate-300 transition hover:border-blue-400/50 hover:bg-white/5 hover:text-white"
+          >
+            ← Back to GG LearnLabs
+          </a>
+        </div>
+      </header>
+
+      {/* Hero */}
+      <section className="border-b border-white/10">
+        <div className="mx-auto max-w-7xl px-6 py-16">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-400">
+            Training Effectiveness Tool
+          </p>
+
+          <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-6xl">
+            Training Effectiveness
+            <span className="block text-blue-400">Calculator</span>
           </h1>
 
-          <p className="mt-3 max-w-2xl text-slate-400">
-            Measure training effectiveness across trainer performance,
-            participant feedback, knowledge, learning application and
-            attendance.
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-400">
+            Measure the overall effectiveness of a training program using a
+            combination of trainer performance, participant feedback, knowledge
+            assessment, learning application and attendance or completion.
           </p>
         </div>
+      </section>
 
-        {/* Training Details */}
-        <div className="rounded-2xl border border-white/10 bg-slate-900 p-6 print:hidden">
-          <h2 className="text-2xl font-bold">
-            Training / Program Details
-          </h2>
-
-          <div className="mt-6 grid gap-5 md:grid-cols-2">
-            {fields.map(
-              ([label, value, setValue, placeholder, type], index) => (
-                <div
-                  key={label}
-                  className={index === 4 ? "md:col-span-2" : ""}
-                >
-                  <label className="mb-2 block text-sm font-medium">
-                    {label}
-                  </label>
-
-                  <input
-                    type={type}
-                    value={value}
-                    onChange={(event) =>
-                      setValue(event.target.value)
-                    }
-                    placeholder={placeholder}
-                    min={type === "number" ? "1" : undefined}
-                    className="w-full rounded-lg border border-white/10 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
-                  />
-                </div>
-              )
-            )}
-          </div>
-        </div>
-
-        {/* Score Input */}
-        <div className="mt-6 rounded-2xl border border-white/10 bg-slate-900 p-6 print:hidden">
-          <h2 className="text-2xl font-bold">
-            Effectiveness Scores
-          </h2>
-
-          <div className="mt-6 grid gap-5 md:grid-cols-2">
-            {scores.map(([label, value, setValue], index) => (
-              <div
-                key={label}
-                className={index === 4 ? "md:col-span-2" : ""}
-              >
-                <label className="mb-2 block text-sm font-medium">
-                  {label}
-                </label>
-
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={value}
-                  onChange={(event) =>
-                    setValue(event.target.value)
-                  }
-                  placeholder="Enter score"
-                  className="w-full rounded-lg border border-white/10 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
-                />
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <button
-              onClick={handleCalculate}
-              className="flex-1 rounded-lg bg-blue-600 px-6 py-3 font-semibold transition hover:bg-blue-500"
-            >
-              Calculate Effectiveness →
-            </button>
-
-            <button
-              onClick={handleReset}
-              className="rounded-lg border border-white/10 px-6 py-3 text-slate-300 hover:bg-white/5"
-            >
-              Reset
-            </button>
-          </div>
-        </div>
-
-        {/* Results */}
-        {showResults && (
-          <div className="mt-8 space-y-6">
-
-            {/* Training Summary */}
-            <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
-              <h2 className="text-xl font-bold">
-                Training Details
-              </h2>
-
-              <div className="mt-5 grid gap-4 text-sm md:grid-cols-2">
-                <p>
-                  <span className="text-slate-400">Program:</span>{" "}
-                  {programName}
-                </p>
-
-                <p>
-                  <span className="text-slate-400">Trainer:</span>{" "}
-                  {trainerName}
-                </p>
-
-                <p>
-                  <span className="text-slate-400">Date:</span>{" "}
-                  {trainingDate}
-                </p>
-
-                <p>
-                  <span className="text-slate-400">Department:</span>{" "}
-                  {department}
-                </p>
-
-                <p>
-                  <span className="text-slate-400">
-                    Participants:
-                  </span>{" "}
-                  {participants}
-                </p>
-              </div>
-            </div>
-
-            {/* Overall Score */}
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="rounded-2xl border border-blue-500/40 bg-blue-500/10 p-6 md:col-span-2">
-                <p className="text-sm font-semibold uppercase tracking-wide text-blue-300">
-                  Overall Training Effectiveness
-                </p>
-
-                <h2 className="mt-2 text-5xl font-bold text-blue-400">
-                  {overallScore.toFixed(2)}%
-                </h2>
-              </div>
-
-              <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
-                <p className="text-sm text-slate-400">
-                  Effectiveness Rating
-                </p>
-
-                <h2 className="mt-2 text-2xl font-bold">
-                  {rating}
-                </h2>
-              </div>
-            </div>
-
-            {/* Performance Breakdown */}
-            <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
+      {/* Calculator */}
+      <section className="mx-auto max-w-7xl px-6 py-12 md:py-16">
+        <div className="grid gap-10 lg:grid-cols-[1.4fr_0.8fr]">
+          {/* Inputs */}
+          <div>
+            <div className="mb-8">
               <h2 className="text-2xl font-bold">
-                Performance Breakdown
+                Enter your training scores
               </h2>
 
-              <div className="mt-6 overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead className="border-b border-white/10 text-sm text-slate-400">
-                    <tr>
-                      <th className="pb-3">Metric</th>
-                      <th className="pb-3">Score</th>
-                      <th className="pb-3">Weight</th>
-                      <th className="pb-3">Contribution</th>
-                      <th className="pb-3">Status</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {metrics.map((metric) => (
-                      <tr
-                        key={metric.name}
-                        className="border-b border-white/5"
-                      >
-                        <td className="py-4">
-                          {metric.name}
-                        </td>
-
-                        <td className="py-4 font-semibold">
-                          {metric.score}%
-                        </td>
-
-                        <td className="py-4">
-                          {metric.weight}%
-                        </td>
-
-                        <td className="py-4 font-semibold text-blue-400">
-                          {(
-                            metric.score *
-                            (metric.weight / 100)
-                          ).toFixed(2)}
-                        </td>
-
-                        <td className="py-4">
-                          {getStatus(metric.score)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Performance Dashboard */}
-            <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
-              <h2 className="text-2xl font-bold">
-                Performance Dashboard
-              </h2>
-
-              <div className="mt-6 space-y-5">
-                {metrics.map((metric) => (
-                  <div key={metric.name}>
-                    <div className="mb-2 flex justify-between">
-                      <span className="font-medium">
-                        {metric.name}
-                      </span>
-
-                      <span className="font-semibold text-blue-400">
-                        {metric.score}%
-                      </span>
-                    </div>
-
-                    <div className="h-3 w-full overflow-hidden rounded-full bg-slate-700">
-                      <div
-                        className={`h-full rounded-full ${
-                          metric.score >= 90
-                            ? "bg-green-500"
-                            : metric.score >= 85
-                            ? "bg-blue-500"
-                            : metric.score >= 75
-                            ? "bg-yellow-500"
-                            : "bg-red-500"
-                        }`}
-                        style={{
-                          width: `${metric.score}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Strongest and Weakest Areas */}
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="rounded-2xl border border-green-500/20 bg-green-500/5 p-6">
-                <p className="text-sm text-slate-400">
-                  🏆 Strongest Area
-                </p>
-
-                <h3 className="mt-3 text-xl font-bold">
-                  {strongestMetric.name}
-                </h3>
-
-                <p className="mt-2 text-green-400">
-                  Score: {strongestMetric.score}%
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-6">
-                <p className="text-sm text-slate-400">
-                  ⚠️ Weakest Area
-                </p>
-
-                <h3 className="mt-3 text-xl font-bold">
-                  {weakestMetric.name}
-                </h3>
-
-                <p className="mt-2 text-red-400">
-                  Score: {weakestMetric.score}%
-                </p>
-              </div>
-            </div>
-
-            {/* Priority Areas */}
-            <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
-              <h2 className="text-2xl font-bold">
-                🎯 Priority Areas to Improve
-              </h2>
-
-              {improvementAreas.length > 0 ? (
-                <ul className="mt-5 space-y-3 text-slate-300">
-                  {improvementAreas.map((metric) => (
-                    <li key={metric.name}>
-                      • {metric.name} — Current Score:{" "}
-                      <span className="font-semibold text-blue-400">
-                        {metric.score}%
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="mt-4 text-slate-300">
-                  Excellent! No priority improvement areas have been identified.
-                </p>
-              )}
-            </div>
-
-            {/* Smart Recommendation */}
-            <div className="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-6">
-              <h2 className="text-xl font-bold text-blue-300">
-                💡 Smart Recommendation
-              </h2>
-
-              <p className="mt-4 leading-7 text-slate-300">
-                {getRecommendation()}
+              <p className="mt-2 text-slate-400">
+                Rate each category from 0 to 100.
               </p>
             </div>
 
-            {/* Key Insights */}
-            <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
-              <h2 className="text-2xl font-bold">
-                💡 Key Insights
-              </h2>
+            <div className="space-y-5">
+              {categories.map((category) => (
+                <div
+                  key={category.label}
+                  className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 transition hover:border-blue-400/30"
+                >
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-semibold">
+                          {category.label}
+                        </h3>
 
-              <div className="mt-5 space-y-4 text-slate-300">
-                <p>
-                  <strong className="text-white">
-                    Overall Performance:
-                  </strong>{" "}
-                  {rating === "Effective"
-                    ? "The overall training performance is strong and consistent."
-                    : rating === "Satisfactory"
-                    ? "The overall training performance is satisfactory, with room for improvement."
-                    : "The overall training performance requires focused improvement."}
-                </p>
+                        <span className="rounded-full bg-blue-400/10 px-3 py-1 text-xs font-medium text-blue-300">
+                          Weight: {category.weight}%
+                        </span>
+                      </div>
 
-                <p>
-                  <strong className="text-white">
-                    Top Performing Metric:
-                  </strong>{" "}
-                  {strongestMetric.name} is currently the strongest area at{" "}
-                  {strongestMetric.score}%.
-                </p>
+                      <p className="mt-2 text-sm leading-6 text-slate-400">
+                        {category.description}
+                      </p>
+                    </div>
 
-                <p>
-                  <strong className="text-white">
-                    Area Requiring Attention:
-                  </strong>{" "}
-                  {weakestMetric.name} requires focused improvement and
-                  currently stands at {weakestMetric.score}%.
-                </p>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={category.score}
+                        onChange={(event) =>
+                          updateScore(
+                            event.target.value,
+                            category.setScore
+                          )
+                        }
+                        className="w-20 rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-center font-semibold outline-none transition focus:border-blue-400"
+                      />
 
-                <p>
-                  <strong className="text-white">
-                    Recommended Action:
-                  </strong>{" "}
-                  Focus on improving{" "}
-                  {weakestMetric.name.toLowerCase()} while maintaining
-                  strong performance in{" "}
-                  {strongestMetric.name.toLowerCase()}.
+                      <span className="text-sm text-slate-500">
+                        / 100
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-5">
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={category.score}
+                      onChange={(event) =>
+                        updateScore(
+                          event.target.value,
+                          category.setScore
+                        )
+                      }
+                      className="w-full accent-blue-500"
+                    />
+
+                    <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
+                      <span>0</span>
+                      <span className="font-medium text-blue-400">
+                        Current Score: {category.score}%
+                      </span>
+                      <span>100</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Actions */}
+            <div className="mt-8 flex flex-wrap gap-4">
+              <button
+                onClick={resetCalculator}
+                className="rounded-xl border border-white/10 px-5 py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/5 hover:text-white"
+              >
+                Reset Calculator
+              </button>
+
+              <button
+                onClick={() => window.print()}
+                className="rounded-xl bg-blue-500 px-5 py-3 text-sm font-semibold transition hover:bg-blue-400"
+              >
+                Print Results
+              </button>
+            </div>
+          </div>
+
+          {/* Results */}
+          <aside className="lg:sticky lg:top-8 lg:h-fit">
+            <div className="overflow-hidden rounded-3xl border border-blue-400/20 bg-gradient-to-br from-blue-500/10 via-slate-900 to-slate-950 p-7">
+              <p className="text-sm font-semibold uppercase tracking-wider text-blue-400">
+                Overall Result
+              </p>
+
+              {/* Score Circle */}
+              <div className="mx-auto mt-8 flex h-52 w-52 items-center justify-center rounded-full border-[12px] border-blue-500/30 bg-slate-950 shadow-[0_0_80px_rgba(59,130,246,0.15)]">
+                <div className="text-center">
+                  <div className="text-6xl font-bold">
+                    {roundedScore}
+                    <span className="text-3xl text-blue-400">%</span>
+                  </div>
+
+                  <p className="mt-2 text-sm text-slate-400">
+                    Effectiveness Score
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-8 text-center">
+                <span className="rounded-full border border-blue-400/30 bg-blue-400/10 px-4 py-2 text-sm font-semibold text-blue-300">
+                  {effectiveness.level}
+                </span>
+
+                <p className="mt-5 text-sm leading-7 text-slate-400">
+                  {effectiveness.description}
                 </p>
               </div>
             </div>
 
-            {/* Download Report */}
-            <div className="flex justify-center print:hidden">
-              <button
-                onClick={handleDownloadReport}
-                className="rounded-xl bg-green-600 px-8 py-4 font-semibold transition hover:bg-green-500"
-              >
-                Download Training Effectiveness Report
-              </button>
-            </div>
+            {/* Insights */}
+            <div className="mt-6 rounded-2xl border border-white/10 bg-slate-900/70 p-6">
+              <p className="text-sm font-semibold uppercase tracking-wider text-blue-400">
+                Key Insights
+              </p>
 
+              <div className="mt-6 space-y-5">
+                <div className="rounded-xl border border-white/5 bg-slate-950/60 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-green-400">
+                    Strongest Area
+                  </p>
+
+                  <h3 className="mt-2 font-semibold">
+                    {highestCategory.label}
+                  </h3>
+
+                  <p className="mt-2 text-sm leading-6 text-slate-400">
+                    This is currently your strongest contributor with a score
+                    of {highestCategory.score}%.
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-white/5 bg-slate-950/60 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-orange-400">
+                    Priority Improvement Area
+                  </p>
+
+                  <h3 className="mt-2 font-semibold">
+                    {lowestCategory.label}
+                  </h3>
+
+                  <p className="mt-2 text-sm leading-6 text-slate-400">
+                    This area has the lowest score at {lowestCategory.score}%
+                    and may require additional attention or intervention.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        {/* Breakdown */}
+        <section className="mt-16 border-t border-white/10 pt-12">
+          <div className="mb-8">
+            <p className="text-sm font-semibold uppercase tracking-wider text-blue-400">
+              Detailed Breakdown
+            </p>
+
+            <h2 className="mt-3 text-3xl font-bold">
+              How each category contributes
+            </h2>
           </div>
-        )}
-      </div>
+
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {categories.map((category) => {
+              const contribution =
+                (category.score * category.weight) / 100;
+
+              return (
+                <div
+                  key={category.label}
+                  className="rounded-2xl border border-white/10 bg-slate-900/50 p-5"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <h3 className="font-semibold">
+                      {category.label}
+                    </h3>
+
+                    <span className="text-sm font-bold text-blue-400">
+                      {category.score}%
+                    </span>
+                  </div>
+
+                  <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-800">
+                    <div
+                      className="h-full rounded-full bg-blue-500 transition-all duration-500"
+                      style={{ width: `${category.score}%` }}
+                    />
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-xs text-slate-500">
+                        Weight
+                      </p>
+
+                      <p className="mt-1 font-semibold">
+                        {category.weight}%
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-slate-500">
+                        Contribution
+                      </p>
+
+                      <p className="mt-1 font-semibold text-blue-400">
+                        {contribution.toFixed(1)} points
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-white/10 px-6 py-8 text-center text-sm text-slate-500">
+        © 2026 GG LearnLabs · Learning • Measurement • Impact
+      </footer>
     </main>
   );
 }
