@@ -23,12 +23,14 @@ type ScoreField = [
 ];
 
 export default function Calculator() {
+  // Training Details
   const [programName, setProgramName] = useState("");
   const [trainerName, setTrainerName] = useState("");
   const [trainingDate, setTrainingDate] = useState("");
   const [department, setDepartment] = useState("");
   const [participants, setParticipants] = useState("");
 
+  // Effectiveness Scores
   const [trainerObservation, setTrainerObservation] = useState("");
   const [participantFeedback, setParticipantFeedback] = useState("");
   const [knowledgeAssessment, setKnowledgeAssessment] = useState("");
@@ -37,6 +39,7 @@ export default function Calculator() {
 
   const [showResults, setShowResults] = useState(false);
 
+  // Numeric Scores
   const trainerScore = Number(trainerObservation) || 0;
   const feedbackScore = Number(participantFeedback) || 0;
   const knowledgeScore = Number(knowledgeAssessment) || 0;
@@ -71,6 +74,7 @@ export default function Calculator() {
     },
   ];
 
+  // Overall Score
   const overallScore =
     trainerScore * 0.35 +
     feedbackScore * 0.2 +
@@ -85,39 +89,73 @@ export default function Calculator() {
     return "Critical Improvement Required";
   };
 
-  const rating =
-    overallScore < 85 ||
-    trainerScore < 80 ||
-    applicationScore < 70
-      ? "Needs Improvement"
-      : overallScore >= 90 && !metrics.some((metric) => metric.score < 75)
-        ? "Effective"
-        : "Satisfactory";
-
-  const strongest = metrics.reduce((a, b) =>
-    b.score > a.score ? b : a
+  const hasMetricBelow75 = metrics.some(
+    (metric) => metric.score < 75
   );
 
-  const weakest = metrics.reduce((a, b) =>
-    b.score < a.score ? b : a
+  const getRating = () => {
+    if (
+      overallScore < 85 ||
+      trainerScore < 80 ||
+      applicationScore < 70
+    ) {
+      return "Needs Improvement";
+    }
+
+    if (overallScore >= 90 && !hasMetricBelow75) {
+      return "Effective";
+    }
+
+    return "Satisfactory";
+  };
+
+  const rating = getRating();
+
+  const strongestMetric = metrics.reduce((highest, metric) =>
+    metric.score > highest.score ? metric : highest
   );
 
-  const improvement = metrics.filter(
+  const weakestMetric = metrics.reduce((lowest, metric) =>
+    metric.score < lowest.score ? metric : lowest
+  );
+
+  const improvementAreas = metrics.filter(
     (metric) => metric.score < 85
   );
 
-  const calculate = () => {
-    if (
-      !programName.trim() ||
-      !trainerName.trim() ||
-      !trainingDate ||
-      !department.trim() ||
-      !participants
-    ) {
-      alert("Please complete all Training / Program Details.");
-      return;
+  const getRecommendation = () => {
+    if (trainerScore < 80) {
+      return "Trainer Observation is below the required threshold. Focus on strengthening facilitation skills, session structure, learner engagement, communication and trainer effectiveness.";
     }
 
+    if (applicationScore < 70) {
+      return "Learning Application is critically low. Strengthen learning transfer through manager involvement, post-training follow-ups, on-the-job assignments, reinforcement and coaching.";
+    }
+
+    if (weakestMetric.name === "Participant Feedback") {
+      return "Review participant feedback to identify opportunities to improve facilitation, learner engagement, content relevance and the overall learning experience.";
+    }
+
+    if (weakestMetric.name === "Knowledge Assessment") {
+      return "Review the training content and assessment approach. Include more practice, activities, knowledge checks and opportunities for learners to apply concepts.";
+    }
+
+    if (weakestMetric.name === "Learning Application") {
+      return "Strengthen learning transfer through post-training reinforcement, manager follow-ups, practical assignments and on-the-job coaching.";
+    }
+
+    if (weakestMetric.name === "Attendance / Completion") {
+      return "Review learner availability, scheduling, communication and manager support to improve training attendance and completion.";
+    }
+
+    if (rating === "Effective") {
+      return "Training effectiveness is strong. Continue the current approach while maintaining consistency across all performance metrics.";
+    }
+
+    return "Focus on improving the lower-performing metrics while maintaining performance in the strongest areas.";
+  };
+
+  const handleCalculate = () => {
     const scoreValues = [
       trainerObservation,
       participantFeedback,
@@ -125,6 +163,17 @@ export default function Calculator() {
       learningApplication,
       attendanceCompletion,
     ];
+
+    if (
+      programName.trim() === "" ||
+      trainerName.trim() === "" ||
+      trainingDate === "" ||
+      department.trim() === "" ||
+      participants === ""
+    ) {
+      alert("Please complete all Training / Program Details.");
+      return;
+    }
 
     if (
       scoreValues.some((value) => value === "") ||
@@ -139,7 +188,7 @@ export default function Calculator() {
     setShowResults(true);
   };
 
-  const reset = () => {
+  const handleReset = () => {
     setProgramName("");
     setTrainerName("");
     setTrainingDate("");
@@ -153,6 +202,10 @@ export default function Calculator() {
     setAttendanceCompletion("");
 
     setShowResults(false);
+  };
+
+  const handleDownloadReport = () => {
+    window.print();
   };
 
   const fields: TextField[] = [
@@ -224,15 +277,10 @@ export default function Calculator() {
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-10 text-white">
       <div className="mx-auto max-w-5xl">
-        <div className="mb-8">
-          <a
-            href="/gg-learnlabs/"
-            className="text-sm text-blue-400 hover:text-blue-300"
-          >
-            ← Back to GG LearnLabs
-          </a>
 
-          <h1 className="mt-4 text-4xl font-bold">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold">
             Training Effectiveness Calculator
           </h1>
 
@@ -244,8 +292,7 @@ export default function Calculator() {
         </div>
 
         {/* Training Details */}
-
-        <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
+        <div className="rounded-2xl border border-white/10 bg-slate-900 p-6 print:hidden">
           <h2 className="text-2xl font-bold">
             Training / Program Details
           </h2>
@@ -268,6 +315,7 @@ export default function Calculator() {
                       setValue(event.target.value)
                     }
                     placeholder={placeholder}
+                    min={type === "number" ? "1" : undefined}
                     className="w-full rounded-lg border border-white/10 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
                   />
                 </div>
@@ -276,9 +324,8 @@ export default function Calculator() {
           </div>
         </div>
 
-        {/* Effectiveness Scores */}
-
-        <div className="mt-6 rounded-2xl border border-white/10 bg-slate-900 p-6">
+        {/* Score Input */}
+        <div className="mt-6 rounded-2xl border border-white/10 bg-slate-900 p-6 print:hidden">
           <h2 className="text-2xl font-bold">
             Effectiveness Scores
           </h2>
@@ -308,17 +355,17 @@ export default function Calculator() {
             ))}
           </div>
 
-          <div className="mt-6 flex gap-3">
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <button
-              onClick={calculate}
-              className="flex-1 rounded-lg bg-blue-600 px-6 py-3 font-semibold hover:bg-blue-500"
+              onClick={handleCalculate}
+              className="flex-1 rounded-lg bg-blue-600 px-6 py-3 font-semibold transition hover:bg-blue-500"
             >
               Calculate Effectiveness →
             </button>
 
             <button
-              onClick={reset}
-              className="rounded-lg border border-white/10 px-6 py-3 hover:bg-white/5"
+              onClick={handleReset}
+              className="rounded-lg border border-white/10 px-6 py-3 text-slate-300 hover:bg-white/5"
             >
               Reset
             </button>
@@ -326,9 +373,10 @@ export default function Calculator() {
         </div>
 
         {/* Results */}
-
         {showResults && (
           <div className="mt-8 space-y-6">
+
+            {/* Training Summary */}
             <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
               <h2 className="text-xl font-bold">
                 Training Details
@@ -336,31 +384,39 @@ export default function Calculator() {
 
               <div className="mt-5 grid gap-4 text-sm md:grid-cols-2">
                 <p>
-                  Program: {programName}
+                  <span className="text-slate-400">Program:</span>{" "}
+                  {programName}
                 </p>
 
                 <p>
-                  Trainer: {trainerName}
+                  <span className="text-slate-400">Trainer:</span>{" "}
+                  {trainerName}
                 </p>
 
                 <p>
-                  Date: {trainingDate}
+                  <span className="text-slate-400">Date:</span>{" "}
+                  {trainingDate}
                 </p>
 
                 <p>
-                  Department: {department}
+                  <span className="text-slate-400">Department:</span>{" "}
+                  {department}
                 </p>
 
                 <p>
-                  Participants: {participants}
+                  <span className="text-slate-400">
+                    Participants:
+                  </span>{" "}
+                  {participants}
                 </p>
               </div>
             </div>
 
+            {/* Overall Score */}
             <div className="grid gap-4 md:grid-cols-3">
               <div className="rounded-2xl border border-blue-500/40 bg-blue-500/10 p-6 md:col-span-2">
-                <p className="text-sm text-blue-300">
-                  OVERALL TRAINING EFFECTIVENESS
+                <p className="text-sm font-semibold uppercase tracking-wide text-blue-300">
+                  Overall Training Effectiveness
                 </p>
 
                 <h2 className="mt-2 text-5xl font-bold text-blue-400">
@@ -380,7 +436,6 @@ export default function Calculator() {
             </div>
 
             {/* Performance Breakdown */}
-
             <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
               <h2 className="text-2xl font-bold">
                 Performance Breakdown
@@ -388,13 +443,13 @@ export default function Calculator() {
 
               <div className="mt-6 overflow-x-auto">
                 <table className="w-full text-left">
-                  <thead>
+                  <thead className="border-b border-white/10 text-sm text-slate-400">
                     <tr>
-                      <th>Metric</th>
-                      <th>Score</th>
-                      <th>Weight</th>
-                      <th>Contribution</th>
-                      <th>Status</th>
+                      <th className="pb-3">Metric</th>
+                      <th className="pb-3">Score</th>
+                      <th className="pb-3">Weight</th>
+                      <th className="pb-3">Contribution</th>
+                      <th className="pb-3">Status</th>
                     </tr>
                   </thead>
 
@@ -402,24 +457,28 @@ export default function Calculator() {
                     {metrics.map((metric) => (
                       <tr
                         key={metric.name}
-                        className="border-t border-white/10"
+                        className="border-b border-white/5"
                       >
                         <td className="py-4">
                           {metric.name}
                         </td>
 
-                        <td>{metric.score}%</td>
+                        <td className="py-4 font-semibold">
+                          {metric.score}%
+                        </td>
 
-                        <td>{metric.weight}%</td>
+                        <td className="py-4">
+                          {metric.weight}%
+                        </td>
 
-                        <td className="text-blue-400">
+                        <td className="py-4 font-semibold text-blue-400">
                           {(
-                            (metric.score * metric.weight) /
-                            100
+                            metric.score *
+                            (metric.weight / 100)
                           ).toFixed(2)}
                         </td>
 
-                        <td>
+                        <td className="py-4">
                           {getStatus(metric.score)}
                         </td>
                       </tr>
@@ -430,111 +489,167 @@ export default function Calculator() {
             </div>
 
             {/* Performance Dashboard */}
-
             <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
               <h2 className="text-2xl font-bold">
                 Performance Dashboard
               </h2>
 
-              {metrics.map((metric) => (
-                <div
-                  className="mt-5"
-                  key={metric.name}
-                >
-                  <div className="mb-2 flex justify-between">
-                    <span>{metric.name}</span>
+              <div className="mt-6 space-y-5">
+                {metrics.map((metric) => (
+                  <div key={metric.name}>
+                    <div className="mb-2 flex justify-between">
+                      <span className="font-medium">
+                        {metric.name}
+                      </span>
 
-                    <span className="text-blue-400">
-                      {metric.score}%
-                    </span>
-                  </div>
+                      <span className="font-semibold text-blue-400">
+                        {metric.score}%
+                      </span>
+                    </div>
 
-                  <div className="h-3 overflow-hidden rounded-full bg-slate-700">
-                    <div
-                      className="h-full rounded-full bg-blue-500"
-                      style={{
-                        width: `${metric.score}%`,
-                      }}
-                    />
+                    <div className="h-3 w-full overflow-hidden rounded-full bg-slate-700">
+                      <div
+                        className={`h-full rounded-full ${
+                          metric.score >= 90
+                            ? "bg-green-500"
+                            : metric.score >= 85
+                            ? "bg-blue-500"
+                            : metric.score >= 75
+                            ? "bg-yellow-500"
+                            : "bg-red-500"
+                        }`}
+                        style={{
+                          width: `${metric.score}%`,
+                        }}
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
-            {/* Strongest and Weakest */}
-
+            {/* Strongest and Weakest Areas */}
             <div className="grid gap-6 md:grid-cols-2">
               <div className="rounded-2xl border border-green-500/20 bg-green-500/5 p-6">
-                <p>🏆 Strongest Area</p>
+                <p className="text-sm text-slate-400">
+                  🏆 Strongest Area
+                </p>
 
                 <h3 className="mt-3 text-xl font-bold">
-                  {strongest.name}
+                  {strongestMetric.name}
                 </h3>
 
-                <p className="text-green-400">
-                  Score: {strongest.score}%
+                <p className="mt-2 text-green-400">
+                  Score: {strongestMetric.score}%
                 </p>
               </div>
 
               <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-6">
-                <p>⚠️ Weakest Area</p>
+                <p className="text-sm text-slate-400">
+                  ⚠️ Weakest Area
+                </p>
 
                 <h3 className="mt-3 text-xl font-bold">
-                  {weakest.name}
+                  {weakestMetric.name}
                 </h3>
 
-                <p className="text-red-400">
-                  Score: {weakest.score}%
+                <p className="mt-2 text-red-400">
+                  Score: {weakestMetric.score}%
                 </p>
               </div>
             </div>
 
             {/* Priority Areas */}
-
             <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
               <h2 className="text-2xl font-bold">
                 🎯 Priority Areas to Improve
               </h2>
 
-              {improvement.length > 0 ? (
-                <ul className="mt-4 space-y-2">
-                  {improvement.map((metric) => (
+              {improvementAreas.length > 0 ? (
+                <ul className="mt-5 space-y-3 text-slate-300">
+                  {improvementAreas.map((metric) => (
                     <li key={metric.name}>
-                      • {metric.name} — {metric.score}%
+                      • {metric.name} — Current Score:{" "}
+                      <span className="font-semibold text-blue-400">
+                        {metric.score}%
+                      </span>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="mt-4">
-                  Excellent! No priority improvement areas have been
-                  identified.
+                <p className="mt-4 text-slate-300">
+                  Excellent! No priority improvement areas have been identified.
                 </p>
               )}
             </div>
 
-            {/* Recommendation */}
-
+            {/* Smart Recommendation */}
             <div className="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-6">
               <h2 className="text-xl font-bold text-blue-300">
                 💡 Smart Recommendation
               </h2>
 
-              <p className="mt-4">
-                Focus on improving{" "}
-                {weakest.name.toLowerCase()} while maintaining strong
-                performance in{" "}
-                {strongest.name.toLowerCase()}.
+              <p className="mt-4 leading-7 text-slate-300">
+                {getRecommendation()}
               </p>
             </div>
 
-            <div className="flex justify-center">
+            {/* Key Insights */}
+            <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
+              <h2 className="text-2xl font-bold">
+                💡 Key Insights
+              </h2>
+
+              <div className="mt-5 space-y-4 text-slate-300">
+                <p>
+                  <strong className="text-white">
+                    Overall Performance:
+                  </strong>{" "}
+                  {rating === "Effective"
+                    ? "The overall training performance is strong and consistent."
+                    : rating === "Satisfactory"
+                    ? "The overall training performance is satisfactory, with room for improvement."
+                    : "The overall training performance requires focused improvement."}
+                </p>
+
+                <p>
+                  <strong className="text-white">
+                    Top Performing Metric:
+                  </strong>{" "}
+                  {strongestMetric.name} is currently the strongest area at{" "}
+                  {strongestMetric.score}%.
+                </p>
+
+                <p>
+                  <strong className="text-white">
+                    Area Requiring Attention:
+                  </strong>{" "}
+                  {weakestMetric.name} requires focused improvement and
+                  currently stands at {weakestMetric.score}%.
+                </p>
+
+                <p>
+                  <strong className="text-white">
+                    Recommended Action:
+                  </strong>{" "}
+                  Focus on improving{" "}
+                  {weakestMetric.name.toLowerCase()} while maintaining
+                  strong performance in{" "}
+                  {strongestMetric.name.toLowerCase()}.
+                </p>
+              </div>
+            </div>
+
+            {/* Download Report */}
+            <div className="flex justify-center print:hidden">
               <button
-                onClick={() => window.print()}
-                className="rounded-xl bg-green-600 px-8 py-4 font-semibold hover:bg-green-500"
+                onClick={handleDownloadReport}
+                className="rounded-xl bg-green-600 px-8 py-4 font-semibold transition hover:bg-green-500"
               >
                 Download Training Effectiveness Report
               </button>
             </div>
+
           </div>
         )}
       </div>
