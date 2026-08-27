@@ -1,20 +1,301 @@
-"use client";
-import { useState } from "react";
-type Metric={name:string;score:number;weight:number};
-export default function Calculator(){
-const [programName,setProgramName]=useState("");const [trainerName,setTrainerName]=useState("");const [trainingDate,setTrainingDate]=useState("");const [department,setDepartment]=useState("");const [participants,setParticipants]=useState("");const [trainerObservation,setTrainerObservation]=useState("");const [participantFeedback,setParticipantFeedback]=useState("");const [knowledgeAssessment,setKnowledgeAssessment]=useState("");const [learningApplication,setLearningApplication]=useState("");const [attendanceCompletion,setAttendanceCompletion]=useState("");const [showResults,setShowResults]=useState(false);
-const trainerScore=Number(trainerObservation)||0,feedbackScore=Number(participantFeedback)||0,knowledgeScore=Number(knowledgeAssessment)||0,applicationScore=Number(learningApplication)||0,attendanceScore=Number(attendanceCompletion)||0;
-const metrics:Metric[]=[{name:"Trainer Observation",score:trainerScore,weight:35},{name:"Participant Feedback",score:feedbackScore,weight:20},{name:"Knowledge Assessment",score:knowledgeScore,weight:15},{name:"Learning Application",score:applicationScore,weight:20},{name:"Attendance / Completion",score:attendanceScore,weight:10}];
-const overallScore=trainerScore*.35+feedbackScore*.2+knowledgeScore*.15+applicationScore*.2+attendanceScore*.1;
-const status=(s:number)=>s>=90?"Strong":s>=85?"Good":s>=75?"Needs Focus":"Critical Improvement Required";
-const rating=overallScore<85||trainerScore<80||applicationScore<70?"Needs Improvement":overallScore>=90&&!metrics.some(m=>m.score<75)?"Effective":"Satisfactory";
-const strongest=metrics.reduce((a,b)=>b.score>a.score?b:a),weakest=metrics.reduce((a,b)=>b.score<a.score?b:a),improvement=metrics.filter(m=>m.score<85);
-const calc=()=>{if(!programName.trim()||!trainerName.trim()||!trainingDate||!department.trim()||!participants)return alert("Please complete all Training / Program Details.");if([trainerObservation,participantFeedback,knowledgeAssessment,learningApplication,attendanceCompletion].some(v=>v==="")||metrics.some(m=>m.score<0||m.score>100))return alert("Please enter valid scores between 0 and 100.");setShowResults(true)};
-const reset=()=>{[setProgramName,setTrainerName,setTrainingDate,setDepartment,setParticipants,setTrainerObservation,setParticipantFeedback,setKnowledgeAssessment,setLearningApplication,setAttendanceCompletion].forEach((f:any)=>f(""));setShowResults(false)};
-const fields:any[]=[["Training / Program Name",programName,setProgramName,"Example: Leadership Development Program","text"],["Trainer Name",trainerName,setTrainerName,"Enter trainer name","text"],["Training Date",trainingDate,setTrainingDate,"","date"],["Department / Business Unit",department,setDepartment,"Example: Operations","text"],["Number of Participants",participants,setParticipants,"Enter number of participants","number"]];
-const scores:any[]=[["Trainer Observation Score (%)",trainerObservation,setTrainerObservation],["Participant Feedback / L1 Score (%)",participantFeedback,setParticipantFeedback],["Knowledge Assessment Score (%)",knowledgeAssessment,setKnowledgeAssessment],["Learning Application / Transfer Score (%)",learningApplication,setLearningApplication],["Training Attendance / Completion Score (%)",attendanceCompletion,setAttendanceCompletion]];
-return <main className="min-h-screen bg-slate-950 px-6 py-10 text-white"><div className="mx-auto max-w-5xl"><div className="mb-8"><a href="/" className="text-sm text-blue-400">← Back to GG LearnLabs</a><h1 className="mt-4 text-4xl font-bold">Training Effectiveness Calculator</h1><p className="mt-3 max-w-2xl text-slate-400">Measure training effectiveness across trainer performance, participant feedback, knowledge, learning application and attendance.</p></div>
-<div className="rounded-2xl border border-white/10 bg-slate-900 p-6"><h2 className="text-2xl font-bold">Training / Program Details</h2><div className="mt-6 grid gap-5 md:grid-cols-2">{fields.map(([l,v,set,p,t],i)=><div key={l} className={i===4?"md:col-span-2":""}><label className="mb-2 block text-sm font-medium">{l}</label><input type={t} value={v} onChange={e=>set(e.target.value)} placeholder={p} className="w-full rounded-lg border border-white/10 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"/></div>)}</div></div>
-<div className="mt-6 rounded-2xl border border-white/10 bg-slate-900 p-6"><h2 className="text-2xl font-bold">Effectiveness Scores</h2><div className="mt-6 grid gap-5 md:grid-cols-2">{scores.map(([l,v,set],i)=><div key={l} className={i===4?"md:col-span-2":""}><label className="mb-2 block text-sm font-medium">{l}</label><input type="number" min="0" max="100" value={v} onChange={e=>set(e.target.value)} placeholder="Enter score" className="w-full rounded-lg border border-white/10 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"/></div>)}</div><div className="mt-6 flex gap-3"><button onClick={calc} className="flex-1 rounded-lg bg-blue-600 px-6 py-3 font-semibold">Calculate Effectiveness →</button><button onClick={reset} className="rounded-lg border border-white/10 px-6 py-3">Reset</button></div></div>
-{showResults&&<div className="mt-8 space-y-6"><div className="rounded-2xl border border-white/10 bg-slate-900 p-6"><h2 className="text-xl font-bold">Training Details</h2><div className="mt-5 grid gap-4 text-sm md:grid-cols-2"><p>Program: {programName}</p><p>Trainer: {trainerName}</p><p>Date: {trainingDate}</p><p>Department: {department}</p><p>Participants: {participants}</p></div></div><div className="grid gap-4 md:grid-cols-3"><div className="rounded-2xl border border-blue-500/40 bg-blue-500/10 p-6 md:col-span-2"><p className="text-sm text-blue-300">OVERALL TRAINING EFFECTIVENESS</p><h2 className="mt-2 text-5xl font-bold text-blue-400">{overallScore.toFixed(2)}%</h2></div><div className="rounded-2xl border border-white/10 bg-slate-900 p-6"><p className="text-sm text-slate-400">Effectiveness Rating</p><h2 className="mt-2 text-2xl font-bold">{rating}</h2></div></div><div className="rounded-2xl border border-white/10 bg-slate-900 p-6"><h2 className="text-2xl font-bold">Performance Breakdown</h2><div className="mt-6 overflow-x-auto"><table className="w-full text-left"><thead><tr><th>Metric</th><th>Score</th><th>Weight</th><th>Contribution</th><th>Status</th></tr></thead><tbody>{metrics.map(m=><tr key={m.name} className="border-t border-white/10"><td className="py-4">{m.name}</td><td>{m.score}%</td><td>{m.weight}%</td><td className="text-blue-400">{(m.score*m.weight/100).toFixed(2)}</td><td>{status(m.score)}</td></tr>)}</tbody></table></div></div><div className="rounded-2xl border border-white/10 bg-slate-900 p-6"><h2 className="text-2xl font-bold">Performance Dashboard</h2>{metrics.map(m=><div className="mt-5" key={m.name}><div className="mb-2 flex justify-between"><span>{m.name}</span><span className="text-blue-400">{m.score}%</span></div><div className="h-3 overflow-hidden rounded-full bg-slate-700"><div className="h-full rounded-full bg-blue-500" style={{width:`${m.score}%`}}/></div></div>)}</div><div className="grid gap-6 md:grid-cols-2"><div className="rounded-2xl border border-green-500/20 bg-green-500/5 p-6">🏆 Strongest Area<h3 className="mt-3 text-xl font-bold">{strongest.name}</h3><p className="text-green-400">Score: {strongest.score}%</p></div><div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-6">⚠️ Weakest Area<h3 className="mt-3 text-xl font-bold">{weakest.name}</h3><p className="text-red-400">Score: {weakest.score}%</p></div></div><div className="rounded-2xl border border-white/10 bg-slate-900 p-6"><h2 className="text-2xl font-bold">🎯 Priority Areas to Improve</h2>{improvement.length?<ul className="mt-4">{improvement.map(m=><li key={m.name}>• {m.name} — {m.score}%</li>)}</ul>:<p className="mt-4">Excellent! No priority improvement areas have been identified.</p>}</div><div className="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-6"><h2 className="text-xl font-bold text-blue-300">💡 Smart Recommendation</h2><p className="mt-4">Focus on improving {weakest.name.toLowerCase()} while maintaining strong performance in {strongest.name.toLowerCase()}.</p></div><div className="flex justify-center"><button onClick={()=>window.print()} className="rounded-xl bg-green-600 px-8 py-4 font-semibold">Download Training Effectiveness Report</button></div></div>}</div></main>
+export default function Home() {
+  return (
+    <main className="home-page">
+      {/* Background decoration */}
+      <div className="background-glow glow-one" />
+      <div className="background-glow glow-two" />
+
+      {/* Navigation */}
+      <nav className="navbar">
+        <a href="./" className="logo">
+          <span className="logo-mark">GG</span>
+          <span>LearnLabs</span>
+        </a>
+
+        <div className="nav-links">
+          <a href="#tools">Tools</a>
+          <a href="#why">Why GG LearnLabs</a>
+          <a href="#resources">Resources</a>
+        </div>
+
+        <a href="#tools" className="nav-button">
+          Explore Tools
+          <span>→</span>
+        </a>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="hero">
+        <div className="hero-badge">
+          <span className="badge-dot" />
+          Built for Learning & Development Professionals
+        </div>
+
+        <h1>
+          Build better learning.
+          <span>Measure real impact.</span>
+        </h1>
+
+        <p className="hero-description">
+          Practical tools, calculators and frameworks designed to help
+          Learning & Development professionals create meaningful learning
+          experiences and measure what truly matters.
+        </p>
+
+        <div className="hero-buttons">
+          <a href="#tools" className="primary-button">
+            Explore Tools
+            <span>→</span>
+          </a>
+
+          <a href="#why" className="secondary-button">
+            Discover GG LearnLabs
+          </a>
+        </div>
+
+        {/* Stats */}
+        <div className="hero-stats">
+          <div>
+            <strong>01</strong>
+            <span>Learning Platform</span>
+          </div>
+
+          <div>
+            <strong>360°</strong>
+            <span>Learning Perspective</span>
+          </div>
+
+          <div>
+            <strong>∞</strong>
+            <span>Possibilities to Explore</span>
+          </div>
+        </div>
+      </section>
+
+      {/* What we do */}
+      <section id="why" className="section intro-section">
+        <div className="section-label">
+          <span />
+          WHY GG LEARNLABS
+        </div>
+
+        <div className="intro-grid">
+          <div>
+            <h2>
+              L&D should not just
+              <br />
+              <span>deliver learning.</span>
+            </h2>
+          </div>
+
+          <div className="intro-content">
+            <p>
+              GG LearnLabs is a growing space for Learning & Development
+              professionals who want to move beyond attendance, completion
+              rates and generic feedback scores.
+            </p>
+
+            <p>
+              Our focus is simple — create practical ways to design better
+              learning, identify capability gaps and measure the real impact
+              of training.
+            </p>
+
+            <div className="feature-list">
+              <div>
+                <span className="feature-number">01</span>
+                <div>
+                  <h4>Practical Tools</h4>
+                  <p>Simple tools designed for real L&D challenges.</p>
+                </div>
+              </div>
+
+              <div>
+                <span className="feature-number">02</span>
+                <div>
+                  <h4>Meaningful Measurement</h4>
+                  <p>Move beyond basic feedback and measure impact.</p>
+                </div>
+              </div>
+
+              <div>
+                <span className="feature-number">03</span>
+                <div>
+                  <h4>Built to Grow</h4>
+                  <p>A growing collection of resources and frameworks.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Tools */}
+      <section id="tools" className="section tools-section">
+        <div className="tools-header">
+          <div>
+            <div className="section-label">
+              <span />
+              EXPLORE THE LAB
+            </div>
+
+            <h2>
+              Tools built for
+              <span> better decisions.</span>
+            </h2>
+          </div>
+
+          <p>
+            Explore practical L&D tools designed to help you understand,
+            measure and improve learning effectiveness.
+          </p>
+        </div>
+
+        <div className="tools-grid">
+          {/* Tool 1 */}
+          <div className="tool-card featured-tool">
+            <div className="tool-top">
+              <div className="tool-icon">↗</div>
+              <span className="tool-status active">AVAILABLE NOW</span>
+            </div>
+
+            <div className="tool-number">01</div>
+
+            <h3>Training Effectiveness Calculator</h3>
+
+            <p>
+              Get a complete view of training effectiveness by combining
+              trainer performance, participant feedback, knowledge,
+              learning application and completion metrics.
+            </p>
+
+            <a href="./calculator/" className="tool-button">
+              Open Calculator
+              <span>→</span>
+            </a>
+          </div>
+
+          {/* Tool 2 */}
+          <div className="tool-card">
+            <div className="tool-top">
+              <div className="tool-icon muted">◌</div>
+              <span className="tool-status">COMING SOON</span>
+            </div>
+
+            <div className="tool-number">02</div>
+
+            <h3>Training Needs Analysis</h3>
+
+            <p>
+              Identify capability gaps and convert business challenges into
+              meaningful learning interventions.
+            </p>
+
+            <div className="coming-soon">In development</div>
+          </div>
+
+          {/* Tool 3 */}
+          <div className="tool-card">
+            <div className="tool-top">
+              <div className="tool-icon muted">◈</div>
+              <span className="tool-status">COMING SOON</span>
+            </div>
+
+            <div className="tool-number">03</div>
+
+            <h3>Learning ROI Calculator</h3>
+
+            <p>
+              Understand the business value and return generated by your
+              learning and development initiatives.
+            </p>
+
+            <div className="coming-soon">In development</div>
+          </div>
+        </div>
+      </section>
+
+      {/* Resources */}
+      <section id="resources" className="section resources-section">
+        <div className="resources-box">
+          <div className="resources-content">
+            <div className="section-label">
+              <span />
+              GROWING WITH YOU
+            </div>
+
+            <h2>
+              One lab.
+              <br />
+              <span>Many possibilities.</span>
+            </h2>
+
+            <p>
+              GG LearnLabs will continue to grow with practical calculators,
+              frameworks, templates and resources designed for trainers,
+              managers and Learning & Development teams.
+            </p>
+          </div>
+
+          <div className="resource-orbit">
+            <div className="orbit orbit-one" />
+            <div className="orbit orbit-two" />
+            <div className="orbit orbit-three" />
+
+            <div className="orbit-center">
+              <span>GG</span>
+              <small>LEARNLABS</small>
+            </div>
+
+            <div className="orbit-point point-one">+</div>
+            <div className="orbit-point point-two">+</div>
+            <div className="orbit-point point-three">+</div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="cta-section">
+        <div className="cta-glow" />
+
+        <div className="section-label center-label">
+          <span />
+          START EXPLORING
+          <span />
+        </div>
+
+        <h2>
+          Ready to look beyond
+          <span> completion rates?</span>
+        </h2>
+
+        <p>
+          Start by exploring the Training Effectiveness Calculator and get a
+          clearer picture of what is working and where learning needs more
+          attention.
+        </p>
+
+        <a href="./calculator/" className="primary-button large-button">
+          Open Training Effectiveness Calculator
+          <span>→</span>
+        </a>
+      </section>
+
+      {/* Footer */}
+      <footer className="footer">
+        <div className="footer-logo">
+          <span className="logo-mark">GG</span>
+          <span>LearnLabs</span>
+        </div>
+
+        <p>
+          Built for people who build people.
+        </p>
+
+        <p className="copyright">
+          © 2026 GG LearnLabs
+        </p>
+      </footer>
+    </main>
+  );
 }
