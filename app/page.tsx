@@ -1,301 +1,281 @@
-export default function Home() {
+"use client";
+
+import { useState } from "react";
+
+export default function TrainingEffectivenessCalculator() {
+  const [trainingName, setTrainingName] = useState("");
+  const [trainerName, setTrainerName] = useState("");
+  const [trainingDate, setTrainingDate] = useState("");
+  const [department, setDepartment] = useState("");
+  const [participants, setParticipants] = useState("");
+
+  const [trainerObservation, setTrainerObservation] = useState("");
+  const [participantFeedback, setParticipantFeedback] = useState("");
+  const [knowledgeAssessment, setKnowledgeAssessment] = useState("");
+  const [learningApplication, setLearningApplication] = useState("");
+  const [trainingAttendance, setTrainingAttendance] = useState("");
+
+  const [result, setResult] = useState<number | null>(null);
+  const [error, setError] = useState("");
+
+  const calculateEffectiveness = () => {
+    const scores = [
+      Number(trainerObservation),
+      Number(participantFeedback),
+      Number(knowledgeAssessment),
+      Number(learningApplication),
+      Number(trainingAttendance),
+    ];
+
+    if (
+      trainerObservation === "" ||
+      participantFeedback === "" ||
+      knowledgeAssessment === "" ||
+      learningApplication === "" ||
+      trainingAttendance === ""
+    ) {
+      setError("Please enter all effectiveness scores.");
+      setResult(null);
+      return;
+    }
+
+    if (scores.some((score) => score < 0 || score > 100)) {
+      setError("All scores must be between 0 and 100.");
+      setResult(null);
+      return;
+    }
+
+    const average =
+      scores.reduce((total, score) => total + score, 0) / scores.length;
+
+    setResult(Number(average.toFixed(2)));
+    setError("");
+  };
+
+  const resetCalculator = () => {
+    setTrainingName("");
+    setTrainerName("");
+    setTrainingDate("");
+    setDepartment("");
+    setParticipants("");
+
+    setTrainerObservation("");
+    setParticipantFeedback("");
+    setKnowledgeAssessment("");
+    setLearningApplication("");
+    setTrainingAttendance("");
+
+    setResult(null);
+    setError("");
+  };
+
   return (
-    <main className="home-page">
-      {/* Background decoration */}
-      <div className="background-glow glow-one" />
-      <div className="background-glow glow-two" />
-
-      {/* Navigation */}
-      <nav className="navbar">
-        <a href="./" className="logo">
-          <span className="logo-mark">GG</span>
-          <span>LearnLabs</span>
+    <main className="min-h-screen bg-[#070d20] px-4 py-10 text-white md:px-8">
+      <div className="mx-auto max-w-5xl">
+        {/* Go Back to Home Page */}
+        <a
+          href="/gg-learnlabs/"
+          className="mb-6 inline-flex items-center text-sm font-medium text-blue-300 transition hover:text-blue-200 hover:underline"
+        >
+          ← Go Back to Home Page
         </a>
 
-        <div className="nav-links">
-          <a href="#tools">Tools</a>
-          <a href="#why">Why GG LearnLabs</a>
-          <a href="#resources">Resources</a>
-        </div>
-
-        <a href="#tools" className="nav-button">
-          Explore Tools
-          <span>→</span>
-        </a>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="hero">
-        <div className="hero-badge">
-          <span className="badge-dot" />
-          Built for Learning & Development Professionals
-        </div>
-
-        <h1>
-          Build better learning.
-          <span>Measure real impact.</span>
+        <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
+          Training Effectiveness Calculator
         </h1>
 
-        <p className="hero-description">
-          Practical tools, calculators and frameworks designed to help
-          Learning & Development professionals create meaningful learning
-          experiences and measure what truly matters.
+        <p className="mt-4 max-w-3xl text-base leading-7 text-slate-300 md:text-lg">
+          Measure training effectiveness across trainer performance,
+          participant feedback, knowledge, learning application and attendance.
         </p>
 
-        <div className="hero-buttons">
-          <a href="#tools" className="primary-button">
-            Explore Tools
-            <span>→</span>
-          </a>
+        {/* Training Details */}
+        <section className="mt-10 rounded-2xl border border-slate-700 bg-slate-800/80 p-6 shadow-xl md:p-8">
+          <h2 className="text-2xl font-bold">
+            Training / Program Details
+          </h2>
 
-          <a href="#why" className="secondary-button">
-            Discover GG LearnLabs
-          </a>
-        </div>
-
-        {/* Stats */}
-        <div className="hero-stats">
-          <div>
-            <strong>01</strong>
-            <span>Learning Platform</span>
-          </div>
-
-          <div>
-            <strong>360°</strong>
-            <span>Learning Perspective</span>
-          </div>
-
-          <div>
-            <strong>∞</strong>
-            <span>Possibilities to Explore</span>
-          </div>
-        </div>
-      </section>
-
-      {/* What we do */}
-      <section id="why" className="section intro-section">
-        <div className="section-label">
-          <span />
-          WHY GG LEARNLABS
-        </div>
-
-        <div className="intro-grid">
-          <div>
-            <h2>
-              L&D should not just
-              <br />
-              <span>deliver learning.</span>
-            </h2>
-          </div>
-
-          <div className="intro-content">
-            <p>
-              GG LearnLabs is a growing space for Learning & Development
-              professionals who want to move beyond attendance, completion
-              rates and generic feedback scores.
-            </p>
-
-            <p>
-              Our focus is simple — create practical ways to design better
-              learning, identify capability gaps and measure the real impact
-              of training.
-            </p>
-
-            <div className="feature-list">
-              <div>
-                <span className="feature-number">01</span>
-                <div>
-                  <h4>Practical Tools</h4>
-                  <p>Simple tools designed for real L&D challenges.</p>
-                </div>
-              </div>
-
-              <div>
-                <span className="feature-number">02</span>
-                <div>
-                  <h4>Meaningful Measurement</h4>
-                  <p>Move beyond basic feedback and measure impact.</p>
-                </div>
-              </div>
-
-              <div>
-                <span className="feature-number">03</span>
-                <div>
-                  <h4>Built to Grow</h4>
-                  <p>A growing collection of resources and frameworks.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Tools */}
-      <section id="tools" className="section tools-section">
-        <div className="tools-header">
-          <div>
-            <div className="section-label">
-              <span />
-              EXPLORE THE LAB
+          <div className="mt-6 grid gap-5 md:grid-cols-2">
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                Training / Program Name
+              </label>
+              <input
+                type="text"
+                value={trainingName}
+                onChange={(e) => setTrainingName(e.target.value)}
+                placeholder="Example: Leadership Development Program"
+                className="w-full rounded-lg border border-slate-700 bg-[#070d20] px-4 py-3 text-white outline-none placeholder:text-slate-400 focus:border-blue-400"
+              />
             </div>
 
-            <h2>
-              Tools built for
-              <span> better decisions.</span>
-            </h2>
-          </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                Trainer Name
+              </label>
+              <input
+                type="text"
+                value={trainerName}
+                onChange={(e) => setTrainerName(e.target.value)}
+                placeholder="Enter trainer name"
+                className="w-full rounded-lg border border-slate-700 bg-[#070d20] px-4 py-3 text-white outline-none placeholder:text-slate-400 focus:border-blue-400"
+              />
+            </div>
 
-          <p>
-            Explore practical L&D tools designed to help you understand,
-            measure and improve learning effectiveness.
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                Training Date
+              </label>
+              <input
+                type="date"
+                value={trainingDate}
+                onChange={(e) => setTrainingDate(e.target.value)}
+                className="w-full rounded-lg border border-slate-700 bg-[#070d20] px-4 py-3 text-white outline-none focus:border-blue-400"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                Department / Business Unit
+              </label>
+              <input
+                type="text"
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
+                placeholder="Example: Operations"
+                className="w-full rounded-lg border border-slate-700 bg-[#070d20] px-4 py-3 text-white outline-none placeholder:text-slate-400 focus:border-blue-400"
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="mb-2 block text-sm font-medium">
+                Number of Participants
+              </label>
+              <input
+                type="number"
+                min="1"
+                value={participants}
+                onChange={(e) => setParticipants(e.target.value)}
+                placeholder="Enter number of participants"
+                className="w-full rounded-lg border border-slate-700 bg-[#070d20] px-4 py-3 text-white outline-none placeholder:text-slate-400 focus:border-blue-400"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Effectiveness Scores */}
+        <section className="mt-8 rounded-2xl border border-slate-700 bg-slate-800/80 p-6 shadow-xl md:p-8">
+          <h2 className="text-2xl font-bold">Effectiveness Scores</h2>
+
+          <p className="mt-2 text-sm text-slate-400">
+            Enter a score between 0 and 100 for each parameter.
           </p>
-        </div>
 
-        <div className="tools-grid">
-          {/* Tool 1 */}
-          <div className="tool-card featured-tool">
-            <div className="tool-top">
-              <div className="tool-icon">↗</div>
-              <span className="tool-status active">AVAILABLE NOW</span>
+          <div className="mt-6 grid gap-5 md:grid-cols-2">
+            <ScoreInput
+              label="Trainer Observation Score (%)"
+              value={trainerObservation}
+              onChange={setTrainerObservation}
+            />
+
+            <ScoreInput
+              label="Participant Feedback / L1 Score (%)"
+              value={participantFeedback}
+              onChange={setParticipantFeedback}
+            />
+
+            <ScoreInput
+              label="Knowledge Assessment Score (%)"
+              value={knowledgeAssessment}
+              onChange={setKnowledgeAssessment}
+            />
+
+            <ScoreInput
+              label="Learning Application / Transfer Score (%)"
+              value={learningApplication}
+              onChange={setLearningApplication}
+            />
+
+            <div className="md:col-span-2">
+              <ScoreInput
+                label="Training Attendance / Completion Score (%)"
+                value={trainingAttendance}
+                onChange={setTrainingAttendance}
+              />
             </div>
-
-            <div className="tool-number">01</div>
-
-            <h3>Training Effectiveness Calculator</h3>
-
-            <p>
-              Get a complete view of training effectiveness by combining
-              trainer performance, participant feedback, knowledge,
-              learning application and completion metrics.
-            </p>
-
-            <a href="./calculator/" className="tool-button">
-              Open Calculator
-              <span>→</span>
-            </a>
           </div>
 
-          {/* Tool 2 */}
-          <div className="tool-card">
-            <div className="tool-top">
-              <div className="tool-icon muted">◌</div>
-              <span className="tool-status">COMING SOON</span>
+          {error && (
+            <div className="mt-6 rounded-lg border border-red-500/50 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+              {error}
             </div>
+          )}
 
-            <div className="tool-number">02</div>
+          <div className="mt-8 flex flex-wrap gap-4">
+            <button
+              type="button"
+              onClick={calculateEffectiveness}
+              className="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-500"
+            >
+              Calculate Effectiveness
+            </button>
 
-            <h3>Training Needs Analysis</h3>
-
-            <p>
-              Identify capability gaps and convert business challenges into
-              meaningful learning interventions.
-            </p>
-
-            <div className="coming-soon">In development</div>
+            <button
+              type="button"
+              onClick={resetCalculator}
+              className="rounded-lg border border-slate-600 bg-slate-700 px-6 py-3 font-semibold text-white transition hover:bg-slate-600"
+            >
+              Reset
+            </button>
           </div>
 
-          {/* Tool 3 */}
-          <div className="tool-card">
-            <div className="tool-top">
-              <div className="tool-icon muted">◈</div>
-              <span className="tool-status">COMING SOON</span>
+          {result !== null && (
+            <div className="mt-8 rounded-xl border border-blue-500/40 bg-blue-500/10 p-6 text-center">
+              <p className="text-sm font-medium uppercase tracking-wide text-blue-300">
+                Overall Training Effectiveness
+              </p>
+
+              <p className="mt-3 text-5xl font-bold text-white">
+                {result}%
+              </p>
+
+              <p className="mt-3 text-sm text-slate-300">
+                Based on the average of all five effectiveness parameters.
+              </p>
             </div>
-
-            <div className="tool-number">03</div>
-
-            <h3>Learning ROI Calculator</h3>
-
-            <p>
-              Understand the business value and return generated by your
-              learning and development initiatives.
-            </p>
-
-            <div className="coming-soon">In development</div>
-          </div>
-        </div>
-      </section>
-
-      {/* Resources */}
-      <section id="resources" className="section resources-section">
-        <div className="resources-box">
-          <div className="resources-content">
-            <div className="section-label">
-              <span />
-              GROWING WITH YOU
-            </div>
-
-            <h2>
-              One lab.
-              <br />
-              <span>Many possibilities.</span>
-            </h2>
-
-            <p>
-              GG LearnLabs will continue to grow with practical calculators,
-              frameworks, templates and resources designed for trainers,
-              managers and Learning & Development teams.
-            </p>
-          </div>
-
-          <div className="resource-orbit">
-            <div className="orbit orbit-one" />
-            <div className="orbit orbit-two" />
-            <div className="orbit orbit-three" />
-
-            <div className="orbit-center">
-              <span>GG</span>
-              <small>LEARNLABS</small>
-            </div>
-
-            <div className="orbit-point point-one">+</div>
-            <div className="orbit-point point-two">+</div>
-            <div className="orbit-point point-three">+</div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="cta-section">
-        <div className="cta-glow" />
-
-        <div className="section-label center-label">
-          <span />
-          START EXPLORING
-          <span />
-        </div>
-
-        <h2>
-          Ready to look beyond
-          <span> completion rates?</span>
-        </h2>
-
-        <p>
-          Start by exploring the Training Effectiveness Calculator and get a
-          clearer picture of what is working and where learning needs more
-          attention.
-        </p>
-
-        <a href="./calculator/" className="primary-button large-button">
-          Open Training Effectiveness Calculator
-          <span>→</span>
-        </a>
-      </section>
-
-      {/* Footer */}
-      <footer className="footer">
-        <div className="footer-logo">
-          <span className="logo-mark">GG</span>
-          <span>LearnLabs</span>
-        </div>
-
-        <p>
-          Built for people who build people.
-        </p>
-
-        <p className="copyright">
-          © 2026 GG LearnLabs
-        </p>
-      </footer>
+          )}
+        </section>
+      </div>
     </main>
+  );
+}
+
+type ScoreInputProps = {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+};
+
+function ScoreInput({
+  label,
+  value,
+  onChange,
+}: ScoreInputProps) {
+  return (
+    <div>
+      <label className="mb-2 block text-sm font-medium">
+        {label}
+      </label>
+
+      <input
+        type="number"
+        min="0"
+        max="100"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="Enter score"
+        className="w-full rounded-lg border border-slate-700 bg-[#070d20] px-4 py-3 text-white outline-none placeholder:text-slate-400 focus:border-blue-400"
+      />
+    </div>
   );
 }
