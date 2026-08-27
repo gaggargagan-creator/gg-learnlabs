@@ -68,7 +68,7 @@ export default function RootLayout({
             </nav>
           </div>
 
-          {/* Shared Hero Strip */}
+          {/* Shared Hero Section */}
           <div className="shared-hero">
             <div className="shared-hero-content">
               <span className="shared-hero-label">
@@ -82,13 +82,14 @@ export default function RootLayout({
                 </h2>
 
                 <p>
-                  Explore practical Learning & Development tools designed to
-                  measure effectiveness, support better decisions and drive
+                  Explore practical Learning &amp; Development tools designed
+                  to measure effectiveness, support better decisions and drive
                   continuous improvement.
                 </p>
               </div>
             </div>
 
+            {/* Quick Access Cards */}
             <div className="shared-hero-shortcuts">
               <a
                 href="/gg-learnlabs/calculator/"
@@ -121,7 +122,7 @@ export default function RootLayout({
           </div>
         </header>
 
-        {/* Page Content */}
+        {/* Individual Page Content */}
         <main>{children}</main>
       </body>
     </html>
