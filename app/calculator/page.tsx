@@ -1,26 +1,160 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 
-export default function TrainingEffectivenessCalculator() {
+type Metric = {
+  name: string;
+  score: number;
+  weight: number;
+};
+
+type TextField = [
+  string,
+  string,
+  Dispatch<SetStateAction<string>>,
+  string,
+  string
+];
+
+type ScoreField = [
+  string,
+  string,
+  Dispatch<SetStateAction<string>>
+];
+
+export default function Calculator() {
+  // Training Details
   const [programName, setProgramName] = useState("");
   const [trainerName, setTrainerName] = useState("");
   const [trainingDate, setTrainingDate] = useState("");
   const [department, setDepartment] = useState("");
   const [participants, setParticipants] = useState("");
 
+  // Effectiveness Scores
   const [trainerObservation, setTrainerObservation] = useState("");
   const [participantFeedback, setParticipantFeedback] = useState("");
   const [knowledgeAssessment, setKnowledgeAssessment] = useState("");
   const [learningApplication, setLearningApplication] = useState("");
   const [attendanceCompletion, setAttendanceCompletion] = useState("");
 
-  const [result, setResult] = useState<number | null>(null);
-  const [rating, setRating] = useState("");
-  const [message, setMessage] = useState("");
+  const [showResults, setShowResults] = useState(false);
 
-  const calculateEffectiveness = () => {
-    const scores = [
+  const trainerScore = Number(trainerObservation) || 0;
+  const feedbackScore = Number(participantFeedback) || 0;
+  const knowledgeScore = Number(knowledgeAssessment) || 0;
+  const applicationScore = Number(learningApplication) || 0;
+  const attendanceScore = Number(attendanceCompletion) || 0;
+
+  const metrics: Metric[] = [
+    {
+      name: "Trainer Observation",
+      score: trainerScore,
+      weight: 35,
+    },
+    {
+      name: "Participant Feedback",
+      score: feedbackScore,
+      weight: 20,
+    },
+    {
+      name: "Knowledge Assessment",
+      score: knowledgeScore,
+      weight: 15,
+    },
+    {
+      name: "Learning Application",
+      score: applicationScore,
+      weight: 20,
+    },
+    {
+      name: "Attendance / Completion",
+      score: attendanceScore,
+      weight: 10,
+    },
+  ];
+
+  const overallScore =
+    trainerScore * 0.35 +
+    feedbackScore * 0.2 +
+    knowledgeScore * 0.15 +
+    applicationScore * 0.2 +
+    attendanceScore * 0.1;
+
+  const getStatus = (score: number) => {
+    if (score >= 90) return "Strong";
+    if (score >= 85) return "Good";
+    if (score >= 75) return "Needs Focus";
+    return "Critical Improvement Required";
+  };
+
+  const hasMetricBelow75 = metrics.some(
+    (metric) => metric.score < 75
+  );
+
+  const getRating = () => {
+    if (
+      overallScore < 85 ||
+      trainerScore < 80 ||
+      applicationScore < 70
+    ) {
+      return "Needs Improvement";
+    }
+
+    if (overallScore >= 90 && !hasMetricBelow75) {
+      return "Effective";
+    }
+
+    return "Satisfactory";
+  };
+
+  const rating = getRating();
+
+  const strongestMetric = metrics.reduce((highest, metric) =>
+    metric.score > highest.score ? metric : highest
+  );
+
+  const weakestMetric = metrics.reduce((lowest, metric) =>
+    metric.score < lowest.score ? metric : lowest
+  );
+
+  const improvementAreas = metrics.filter(
+    (metric) => metric.score < 85
+  );
+
+  const getRecommendation = () => {
+    if (trainerScore < 80) {
+      return "Trainer Observation is below the required threshold. Focus on strengthening facilitation skills, session structure, learner engagement, communication and trainer effectiveness.";
+    }
+
+    if (applicationScore < 70) {
+      return "Learning Application is critically low. Strengthen learning transfer through manager involvement, post-training follow-ups, on-the-job assignments, reinforcement and coaching.";
+    }
+
+    if (weakestMetric.name === "Participant Feedback") {
+      return "Review participant feedback to identify opportunities to improve facilitation, learner engagement, content relevance and the overall learning experience.";
+    }
+
+    if (weakestMetric.name === "Knowledge Assessment") {
+      return "Review the training content and assessment approach. Include more practice, activities, knowledge checks and opportunities for learners to apply concepts.";
+    }
+
+    if (weakestMetric.name === "Learning Application") {
+      return "Strengthen learning transfer through post-training reinforcement, manager follow-ups, practical assignments and on-the-job coaching.";
+    }
+
+    if (weakestMetric.name === "Attendance / Completion") {
+      return "Review learner availability, scheduling, communication and manager support to improve training attendance and completion.";
+    }
+
+    if (rating === "Effective") {
+      return "Training effectiveness is strong. Continue the current approach while maintaining consistency across all performance metrics.";
+    }
+
+    return "Focus on improving the lower-performing metrics while maintaining performance in the strongest areas.";
+  };
+
+  const handleCalculate = () => {
+    const scoreValues = [
       trainerObservation,
       participantFeedback,
       knowledgeAssessment,
@@ -28,376 +162,412 @@ export default function TrainingEffectivenessCalculator() {
       attendanceCompletion,
     ];
 
-    if (scores.some((score) => score === "")) {
-      alert("Please enter all effectiveness scores before calculating.");
+    if (
+      programName.trim() === "" ||
+      trainerName.trim() === "" ||
+      trainingDate === "" ||
+      department.trim() === "" ||
+      participants === ""
+    ) {
+      alert("Please complete all Training / Program Details.");
       return;
     }
 
-    const trainerObservationScore = Number(trainerObservation);
-    const participantFeedbackScore = Number(participantFeedback);
-    const knowledgeAssessmentScore = Number(knowledgeAssessment);
-    const learningApplicationScore = Number(learningApplication);
-    const attendanceCompletionScore = Number(attendanceCompletion);
-
-    const allScores = [
-      trainerObservationScore,
-      participantFeedbackScore,
-      knowledgeAssessmentScore,
-      learningApplicationScore,
-      attendanceCompletionScore,
-    ];
-
     if (
-      allScores.some(
-        (score) => Number.isNaN(score) || score < 0 || score > 100
+      scoreValues.some((value) => value === "") ||
+      metrics.some(
+        (metric) => metric.score < 0 || metric.score > 100
       )
     ) {
       alert("Please enter valid scores between 0 and 100.");
       return;
     }
 
-    const overallScore =
-      trainerObservationScore * 0.2 +
-      participantFeedbackScore * 0.2 +
-      knowledgeAssessmentScore * 0.2 +
-      learningApplicationScore * 0.3 +
-      attendanceCompletionScore * 0.1;
-
-    const finalScore = Number(overallScore.toFixed(2));
-
-    setResult(finalScore);
-
-    if (finalScore >= 90) {
-      setRating("Excellent");
-      setMessage(
-        "The training program is highly effective and is delivering strong results across all key areas."
-      );
-    } else if (finalScore >= 75) {
-      setRating("Effective");
-      setMessage(
-        "The training program is performing well, with opportunities for further improvement."
-      );
-    } else if (finalScore >= 60) {
-      setRating("Moderately Effective");
-      setMessage(
-        "The training program is showing positive results, but some areas need improvement."
-      );
-    } else if (finalScore >= 40) {
-      setRating("Needs Improvement");
-      setMessage(
-        "The training program requires focused improvement across one or more key areas."
-      );
-    } else {
-      setRating("Critical Attention Needed");
-      setMessage(
-        "The training program requires significant review and corrective action."
-      );
-    }
+    setShowResults(true);
   };
 
-  const resetCalculator = () => {
+  const handleReset = () => {
     setProgramName("");
     setTrainerName("");
     setTrainingDate("");
     setDepartment("");
     setParticipants("");
-
     setTrainerObservation("");
     setParticipantFeedback("");
     setKnowledgeAssessment("");
     setLearningApplication("");
     setAttendanceCompletion("");
-
-    setResult(null);
-    setRating("");
-    setMessage("");
+    setShowResults(false);
   };
 
+  const handleDownloadReport = () => {
+    window.print();
+  };
+
+  const fields: TextField[] = [
+    [
+      "Training / Program Name",
+      programName,
+      setProgramName,
+      "Example: Leadership Development Program",
+      "text",
+    ],
+    [
+      "Trainer Name",
+      trainerName,
+      setTrainerName,
+      "Enter trainer name",
+      "text",
+    ],
+    [
+      "Training Date",
+      trainingDate,
+      setTrainingDate,
+      "",
+      "date",
+    ],
+    [
+      "Department / Business Unit",
+      department,
+      setDepartment,
+      "Example: Operations",
+      "text",
+    ],
+    [
+      "Number of Participants",
+      participants,
+      setParticipants,
+      "Enter number of participants",
+      "number",
+    ],
+  ];
+
+  const scores: ScoreField[] = [
+    [
+      "Trainer Observation Score (%)",
+      trainerObservation,
+      setTrainerObservation,
+    ],
+    [
+      "Participant Feedback / L1 Score (%)",
+      participantFeedback,
+      setParticipantFeedback,
+    ],
+    [
+      "Knowledge Assessment Score (%)",
+      knowledgeAssessment,
+      setKnowledgeAssessment,
+    ],
+    [
+      "Learning Application / Transfer Score (%)",
+      learningApplication,
+      setLearningApplication,
+    ],
+    [
+      "Training Attendance / Completion Score (%)",
+      attendanceCompletion,
+      setAttendanceCompletion,
+    ],
+  ];
+
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-10 text-slate-100 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-slate-950 px-6 py-10 text-white">
       <div className="mx-auto max-w-5xl">
-        {/* Page Heading */}
-        <section className="mb-10">
-          <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+
+        {/* Back to Home */}
+        <a
+          href="/gg-learnlabs/"
+          className="mb-6 inline-flex items-center text-sm font-medium text-blue-400 transition hover:text-blue-300 hover:underline"
+        >
+          ← Go Back to Home Page
+        </a>
+
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold">
             Training Effectiveness Calculator
           </h1>
 
-          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-300 sm:text-lg">
+          <p className="mt-3 max-w-2xl text-slate-400">
             Measure training effectiveness across trainer performance,
             participant feedback, knowledge, learning application and
             attendance.
           </p>
-        </section>
+        </div>
 
         {/* Training Details */}
-        <section className="rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-xl sm:p-8">
-          <h2 className="mb-7 text-2xl font-bold text-white sm:text-3xl">
+        <div className="rounded-2xl border border-white/10 bg-slate-900 p-6 print:hidden">
+          <h2 className="text-2xl font-bold">
             Training / Program Details
           </h2>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <div>
-              <label
-                htmlFor="programName"
-                className="mb-2 block text-sm font-medium text-slate-100"
-              >
-                Training / Program Name
-              </label>
+          <div className="mt-6 grid gap-5 md:grid-cols-2">
+            {fields.map(
+              ([label, value, setValue, placeholder, type], index) => (
+                <div
+                  key={label}
+                  className={index === 4 ? "md:col-span-2" : ""}
+                >
+                  <label className="mb-2 block text-sm font-medium">
+                    {label}
+                  </label>
 
-              <input
-                id="programName"
-                type="text"
-                value={programName}
-                onChange={(event) => setProgramName(event.target.value)}
-                placeholder="Example: Leadership Development Program"
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="trainerName"
-                className="mb-2 block text-sm font-medium text-slate-100"
-              >
-                Trainer Name
-              </label>
-
-              <input
-                id="trainerName"
-                type="text"
-                value={trainerName}
-                onChange={(event) => setTrainerName(event.target.value)}
-                placeholder="Enter trainer name"
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="trainingDate"
-                className="mb-2 block text-sm font-medium text-slate-100"
-              >
-                Training Date
-              </label>
-
-              <input
-                id="trainingDate"
-                type="date"
-                value={trainingDate}
-                onChange={(event) => setTrainingDate(event.target.value)}
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="department"
-                className="mb-2 block text-sm font-medium text-slate-100"
-              >
-                Department / Business Unit
-              </label>
-
-              <input
-                id="department"
-                type="text"
-                value={department}
-                onChange={(event) => setDepartment(event.target.value)}
-                placeholder="Example: Operations"
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label
-                htmlFor="participants"
-                className="mb-2 block text-sm font-medium text-slate-100"
-              >
-                Number of Participants
-              </label>
-
-              <input
-                id="participants"
-                type="number"
-                min="1"
-                value={participants}
-                onChange={(event) => setParticipants(event.target.value)}
-                placeholder="Enter number of participants"
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
-              />
-            </div>
+                  <input
+                    type={type}
+                    value={value}
+                    onChange={(event) =>
+                      setValue(event.target.value)
+                    }
+                    placeholder={placeholder}
+                    min={type === "number" ? "1" : undefined}
+                    className="w-full rounded-lg border border-white/10 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
+                  />
+                </div>
+              )
+            )}
           </div>
-        </section>
+        </div>
 
-        {/* Effectiveness Scores */}
-        <section className="mt-8 rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-xl sm:p-8">
-          <h2 className="mb-7 text-2xl font-bold text-white sm:text-3xl">
+        {/* Score Input */}
+        <div className="mt-6 rounded-2xl border border-white/10 bg-slate-900 p-6 print:hidden">
+          <h2 className="text-2xl font-bold">
             Effectiveness Scores
           </h2>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <div>
-              <label
-                htmlFor="trainerObservation"
-                className="mb-2 block text-sm font-medium text-slate-100"
+          <div className="mt-6 grid gap-5 md:grid-cols-2">
+            {scores.map(([label, value, setValue], index) => (
+              <div
+                key={label}
+                className={index === 4 ? "md:col-span-2" : ""}
               >
-                Trainer Observation Score (%)
-              </label>
+                <label className="mb-2 block text-sm font-medium">
+                  {label}
+                </label>
 
-              <input
-                id="trainerObservation"
-                type="number"
-                min="0"
-                max="100"
-                value={trainerObservation}
-                onChange={(event) =>
-                  setTrainerObservation(event.target.value)
-                }
-                placeholder="Enter score"
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="participantFeedback"
-                className="mb-2 block text-sm font-medium text-slate-100"
-              >
-                Participant Feedback / L1 Score (%)
-              </label>
-
-              <input
-                id="participantFeedback"
-                type="number"
-                min="0"
-                max="100"
-                value={participantFeedback}
-                onChange={(event) =>
-                  setParticipantFeedback(event.target.value)
-                }
-                placeholder="Enter score"
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="knowledgeAssessment"
-                className="mb-2 block text-sm font-medium text-slate-100"
-              >
-                Knowledge Assessment Score (%)
-              </label>
-
-              <input
-                id="knowledgeAssessment"
-                type="number"
-                min="0"
-                max="100"
-                value={knowledgeAssessment}
-                onChange={(event) =>
-                  setKnowledgeAssessment(event.target.value)
-                }
-                placeholder="Enter score"
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="learningApplication"
-                className="mb-2 block text-sm font-medium text-slate-100"
-              >
-                Learning Application / Transfer Score (%)
-              </label>
-
-              <input
-                id="learningApplication"
-                type="number"
-                min="0"
-                max="100"
-                value={learningApplication}
-                onChange={(event) =>
-                  setLearningApplication(event.target.value)
-                }
-                placeholder="Enter score"
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label
-                htmlFor="attendanceCompletion"
-                className="mb-2 block text-sm font-medium text-slate-100"
-              >
-                Training Attendance / Completion Score (%)
-              </label>
-
-              <input
-                id="attendanceCompletion"
-                type="number"
-                min="0"
-                max="100"
-                value={attendanceCompletion}
-                onChange={(event) =>
-                  setAttendanceCompletion(event.target.value)
-                }
-                placeholder="Enter score"
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
-              />
-            </div>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={value}
+                  onChange={(event) =>
+                    setValue(event.target.value)
+                  }
+                  placeholder="Enter score"
+                  className="w-full rounded-lg border border-white/10 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
+                />
+              </div>
+            ))}
           </div>
 
-          <div className="mt-8 flex flex-wrap gap-4">
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <button
-              type="button"
-              onClick={calculateEffectiveness}
-              className="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-500"
+              onClick={handleCalculate}
+              className="flex-1 rounded-lg bg-blue-600 px-6 py-3 font-semibold transition hover:bg-blue-500"
             >
               Calculate Effectiveness →
             </button>
 
             <button
-              type="button"
-              onClick={resetCalculator}
-              className="rounded-lg border border-slate-600 bg-slate-800 px-6 py-3 font-semibold text-white transition hover:bg-slate-700"
+              onClick={handleReset}
+              className="rounded-lg border border-white/10 px-6 py-3 text-slate-300 hover:bg-white/5"
             >
               Reset
             </button>
           </div>
-        </section>
+        </div>
 
-        {/* Result */}
-        {result !== null && (
-          <section className="mt-8 rounded-2xl border border-blue-500/40 bg-slate-900 p-6 shadow-xl sm:p-8">
-            <p className="text-sm font-semibold uppercase tracking-wider text-blue-400">
-              Overall Training Effectiveness
-            </p>
+        {/* Results */}
+        {showResults && (
+          <div className="mt-8 space-y-6">
 
-            <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <div className="text-5xl font-bold text-white sm:text-6xl">
-                  {result}%
-                </div>
+            {/* Training Summary */}
+            <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
+              <h2 className="text-xl font-bold">
+                Training Details
+              </h2>
 
-                <h2 className="mt-3 text-2xl font-bold text-blue-400">
+              <div className="mt-5 grid gap-4 text-sm md:grid-cols-2">
+                <p>Program: {programName}</p>
+                <p>Trainer: {trainerName}</p>
+                <p>Date: {trainingDate}</p>
+                <p>Department: {department}</p>
+                <p>Participants: {participants}</p>
+              </div>
+            </div>
+
+            {/* Overall Score */}
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="rounded-2xl border border-blue-500/40 bg-blue-500/10 p-6 md:col-span-2">
+                <p className="text-sm text-blue-300">
+                  OVERALL TRAINING EFFECTIVENESS
+                </p>
+
+                <h2 className="mt-2 text-5xl font-bold text-blue-400">
+                  {overallScore.toFixed(2)}%
+                </h2>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
+                <p className="text-sm text-slate-400">
+                  Effectiveness Rating
+                </p>
+
+                <h2 className="mt-2 text-2xl font-bold">
                   {rating}
                 </h2>
+              </div>
+            </div>
 
-                <p className="mt-3 max-w-2xl leading-7 text-slate-300">
-                  {message}
+            {/* Performance Breakdown */}
+            <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
+              <h2 className="text-2xl font-bold">
+                Performance Breakdown
+              </h2>
+
+              <div className="mt-6 overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr>
+                      <th>Metric</th>
+                      <th>Score</th>
+                      <th>Weight</th>
+                      <th>Contribution</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {metrics.map((metric) => (
+                      <tr
+                        key={metric.name}
+                        className="border-t border-white/10"
+                      >
+                        <td className="py-4">
+                          {metric.name}
+                        </td>
+
+                        <td>{metric.score}%</td>
+
+                        <td>{metric.weight}%</td>
+
+                        <td className="text-blue-400">
+                          {(
+                            (metric.score * metric.weight) /
+                            100
+                          ).toFixed(2)}
+                        </td>
+
+                        <td>
+                          {getStatus(metric.score)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Dashboard */}
+            <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
+              <h2 className="text-2xl font-bold">
+                Performance Dashboard
+              </h2>
+
+              {metrics.map((metric) => (
+                <div
+                  className="mt-5"
+                  key={metric.name}
+                >
+                  <div className="mb-2 flex justify-between">
+                    <span>{metric.name}</span>
+
+                    <span className="text-blue-400">
+                      {metric.score}%
+                    </span>
+                  </div>
+
+                  <div className="h-3 overflow-hidden rounded-full bg-slate-700">
+                    <div
+                      className="h-full rounded-full bg-blue-500"
+                      style={{
+                        width: `${metric.score}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Strongest and Weakest */}
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="rounded-2xl border border-green-500/20 bg-green-500/5 p-6">
+                <p>🏆 Strongest Area</p>
+
+                <h3 className="mt-3 text-xl font-bold">
+                  {strongestMetric.name}
+                </h3>
+
+                <p className="text-green-400">
+                  Score: {strongestMetric.score}%
                 </p>
               </div>
 
-              <div className="rounded-xl border border-slate-700 bg-slate-950 px-5 py-4">
-                <p className="text-sm text-slate-400">
-                  Training Program
-                </p>
+              <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-6">
+                <p>⚠️ Weakest Area</p>
 
-                <p className="mt-1 font-semibold text-white">
-                  {programName || "Not specified"}
+                <h3 className="mt-3 text-xl font-bold">
+                  {weakestMetric.name}
+                </h3>
+
+                <p className="text-red-400">
+                  Score: {weakestMetric.score}%
                 </p>
               </div>
             </div>
-          </section>
+
+            {/* Improvement Areas */}
+            <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
+              <h2 className="text-2xl font-bold">
+                🎯 Priority Areas to Improve
+              </h2>
+
+              {improvementAreas.length > 0 ? (
+                <ul className="mt-4 space-y-2">
+                  {improvementAreas.map((metric) => (
+                    <li key={metric.name}>
+                      • {metric.name} — {metric.score}%
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-4">
+                  Excellent! No priority improvement areas have been
+                  identified.
+                </p>
+              )}
+            </div>
+
+            {/* Recommendation */}
+            <div className="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-6">
+              <h2 className="text-xl font-bold text-blue-300">
+                💡 Smart Recommendation
+              </h2>
+
+              <p className="mt-4 leading-7">
+                {getRecommendation()}
+              </p>
+            </div>
+
+            {/* Download */}
+            <div className="flex justify-center print:hidden">
+              <button
+                onClick={handleDownloadReport}
+                className="rounded-xl bg-green-600 px-8 py-4 font-semibold transition hover:bg-green-500"
+              >
+                Download Training Effectiveness Report
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </main>
