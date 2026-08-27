@@ -1,12 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 
 type Metric = {
   name: string;
   score: number;
   weight: number;
 };
+
+type TextField = [
+  string,
+  string,
+  Dispatch<SetStateAction<string>>,
+  string,
+  string
+];
+
+type ScoreField = [
+  string,
+  string,
+  Dispatch<SetStateAction<string>>
+];
 
 export default function Calculator() {
   const [programName, setProgramName] = useState("");
@@ -64,7 +78,7 @@ export default function Calculator() {
     applicationScore * 0.2 +
     attendanceScore * 0.1;
 
-  const status = (score: number) => {
+  const getStatus = (score: number) => {
     if (score >= 90) return "Strong";
     if (score >= 85) return "Good";
     if (score >= 75) return "Needs Focus";
@@ -88,7 +102,9 @@ export default function Calculator() {
     b.score < a.score ? b : a
   );
 
-  const improvement = metrics.filter((metric) => metric.score < 85);
+  const improvement = metrics.filter(
+    (metric) => metric.score < 85
+  );
 
   const calculate = () => {
     if (
@@ -102,14 +118,16 @@ export default function Calculator() {
       return;
     }
 
+    const scoreValues = [
+      trainerObservation,
+      participantFeedback,
+      knowledgeAssessment,
+      learningApplication,
+      attendanceCompletion,
+    ];
+
     if (
-      [
-        trainerObservation,
-        participantFeedback,
-        knowledgeAssessment,
-        learningApplication,
-        attendanceCompletion,
-      ].some((value) => value === "") ||
+      scoreValues.some((value) => value === "") ||
       metrics.some(
         (metric) => metric.score < 0 || metric.score > 100
       )
@@ -127,15 +145,17 @@ export default function Calculator() {
     setTrainingDate("");
     setDepartment("");
     setParticipants("");
+
     setTrainerObservation("");
     setParticipantFeedback("");
     setKnowledgeAssessment("");
     setLearningApplication("");
     setAttendanceCompletion("");
+
     setShowResults(false);
   };
 
-  const fields = [
+  const fields: TextField[] = [
     [
       "Training / Program Name",
       programName,
@@ -173,7 +193,7 @@ export default function Calculator() {
     ],
   ];
 
-  const scores = [
+  const scores: ScoreField[] = [
     [
       "Trainer Observation Score (%)",
       trainerObservation,
@@ -204,7 +224,6 @@ export default function Calculator() {
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-10 text-white">
       <div className="mx-auto max-w-5xl">
-
         <div className="mb-8">
           <a
             href="/gg-learnlabs/"
@@ -224,36 +243,40 @@ export default function Calculator() {
           </p>
         </div>
 
+        {/* Training Details */}
+
         <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
           <h2 className="text-2xl font-bold">
             Training / Program Details
           </h2>
 
           <div className="mt-6 grid gap-5 md:grid-cols-2">
-            {fields.map(([label, value, setValue, placeholder, type], index) => (
-              <div
-                key={label as string}
-                className={index === 4 ? "md:col-span-2" : ""}
-              >
-                <label className="mb-2 block text-sm font-medium">
-                  {label as string}
-                </label>
+            {fields.map(
+              ([label, value, setValue, placeholder, type], index) => (
+                <div
+                  key={label}
+                  className={index === 4 ? "md:col-span-2" : ""}
+                >
+                  <label className="mb-2 block text-sm font-medium">
+                    {label}
+                  </label>
 
-                <input
-                  type={type as string}
-                  value={value as string}
-                  onChange={(event) =>
-                    (setValue as (value: string) => void)(
-                      event.target.value
-                    )
-                  }
-                  placeholder={placeholder as string}
-                  className="w-full rounded-lg border border-white/10 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
-                />
-              </div>
-            ))}
+                  <input
+                    type={type}
+                    value={value}
+                    onChange={(event) =>
+                      setValue(event.target.value)
+                    }
+                    placeholder={placeholder}
+                    className="w-full rounded-lg border border-white/10 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
+                  />
+                </div>
+              )
+            )}
           </div>
         </div>
+
+        {/* Effectiveness Scores */}
 
         <div className="mt-6 rounded-2xl border border-white/10 bg-slate-900 p-6">
           <h2 className="text-2xl font-bold">
@@ -275,7 +298,9 @@ export default function Calculator() {
                   min="0"
                   max="100"
                   value={value}
-                  onChange={(event) => setValue(event.target.value)}
+                  onChange={(event) =>
+                    setValue(event.target.value)
+                  }
                   placeholder="Enter score"
                   className="w-full rounded-lg border border-white/10 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
                 />
@@ -300,20 +325,35 @@ export default function Calculator() {
           </div>
         </div>
 
+        {/* Results */}
+
         {showResults && (
           <div className="mt-8 space-y-6">
-
             <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
               <h2 className="text-xl font-bold">
                 Training Details
               </h2>
 
               <div className="mt-5 grid gap-4 text-sm md:grid-cols-2">
-                <p>Program: {programName}</p>
-                <p>Trainer: {trainerName}</p>
-                <p>Date: {trainingDate}</p>
-                <p>Department: {department}</p>
-                <p>Participants: {participants}</p>
+                <p>
+                  Program: {programName}
+                </p>
+
+                <p>
+                  Trainer: {trainerName}
+                </p>
+
+                <p>
+                  Date: {trainingDate}
+                </p>
+
+                <p>
+                  Department: {department}
+                </p>
+
+                <p>
+                  Participants: {participants}
+                </p>
               </div>
             </div>
 
@@ -338,6 +378,8 @@ export default function Calculator() {
                 </h2>
               </div>
             </div>
+
+            {/* Performance Breakdown */}
 
             <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
               <h2 className="text-2xl font-bold">
@@ -365,21 +407,29 @@ export default function Calculator() {
                         <td className="py-4">
                           {metric.name}
                         </td>
+
                         <td>{metric.score}%</td>
+
                         <td>{metric.weight}%</td>
+
                         <td className="text-blue-400">
                           {(
                             (metric.score * metric.weight) /
                             100
                           ).toFixed(2)}
                         </td>
-                        <td>{status(metric.score)}</td>
+
+                        <td>
+                          {getStatus(metric.score)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             </div>
+
+            {/* Performance Dashboard */}
 
             <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
               <h2 className="text-2xl font-bold">
@@ -411,9 +461,11 @@ export default function Calculator() {
               ))}
             </div>
 
+            {/* Strongest and Weakest */}
+
             <div className="grid gap-6 md:grid-cols-2">
               <div className="rounded-2xl border border-green-500/20 bg-green-500/5 p-6">
-                🏆 Strongest Area
+                <p>🏆 Strongest Area</p>
 
                 <h3 className="mt-3 text-xl font-bold">
                   {strongest.name}
@@ -425,7 +477,7 @@ export default function Calculator() {
               </div>
 
               <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-6">
-                ⚠️ Weakest Area
+                <p>⚠️ Weakest Area</p>
 
                 <h3 className="mt-3 text-xl font-bold">
                   {weakest.name}
@@ -437,13 +489,15 @@ export default function Calculator() {
               </div>
             </div>
 
+            {/* Priority Areas */}
+
             <div className="rounded-2xl border border-white/10 bg-slate-900 p-6">
               <h2 className="text-2xl font-bold">
                 🎯 Priority Areas to Improve
               </h2>
 
-              {improvement.length ? (
-                <ul className="mt-4">
+              {improvement.length > 0 ? (
+                <ul className="mt-4 space-y-2">
                   {improvement.map((metric) => (
                     <li key={metric.name}>
                       • {metric.name} — {metric.score}%
@@ -457,6 +511,8 @@ export default function Calculator() {
                 </p>
               )}
             </div>
+
+            {/* Recommendation */}
 
             <div className="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-6">
               <h2 className="text-xl font-bold text-blue-300">
@@ -479,7 +535,6 @@ export default function Calculator() {
                 Download Training Effectiveness Report
               </button>
             </div>
-
           </div>
         )}
       </div>
