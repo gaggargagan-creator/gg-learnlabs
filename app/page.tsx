@@ -2,148 +2,218 @@
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <header className="site-header">
-        <div className="site-header-inner">
-          <a href="/gg-learnlabs/" className="site-brand" aria-label="GG LearnLabs Home">
-            <div className="brand-mark"><span>GG</span></div>
-            <div className="brand-copy">
-              <span className="brand-name">GG LearnLabs</span>
-              <span className="brand-tagline">Learn. Measure. Improve.</span>
-            </div>
-          </a>
-          <nav className="quick-navigation" aria-label="Primary navigation">
-            <a href="/gg-learnlabs/" className="quick-nav-link quick-nav-primary">Home</a>
-            <a href="/gg-learnlabs/calculator/" className="quick-nav-link">Effectiveness Calculator</a>
-            <a href="#tools" className="quick-nav-link">Tools</a>
-            <a href="#resources" className="quick-nav-link">Resources</a>
-          </nav>
-        </div>
-      </header>
+    <div className="min-h-screen bg-slate-950 text-white">
 
-      <section className="shared-hero">
-        <div className="shared-hero-content">
-          <span className="shared-hero-label">PRACTICAL LEARNING &amp; DEVELOPMENT TOOLS</span>
-          <div>
-            <h1>Practical tools for <span>better learning outcomes.</span></h1>
-            <p>
-              Explore practical Learning &amp; Development tools designed to measure
-              effectiveness, support better decisions and drive continuous improvement.
-            </p>
-          </div>
-          <div className="hero-actions">
-            <a href="/gg-learnlabs/calculator/" className="hero-primary-button">
-              Open Effectiveness Calculator <span>→</span>
-            </a>
-            <a href="#tools" className="hero-secondary-button">Explore Tools</a>
-          </div>
-        </div>
-
-        <div className="shared-hero-shortcuts">
-          <a href="/gg-learnlabs/calculator/" className="hero-shortcut">
-            <span className="shortcut-icon">01</span>
-            <div>
-              <strong>Calculate</strong>
-              <span>Measure training effectiveness</span>
-            </div>
-            <span className="shortcut-arrow">→</span>
-          </a>
-          <a href="#tools" className="hero-shortcut">
-            <span className="shortcut-icon">02</span>
-            <div>
-              <strong>Explore Tools</strong>
-              <span>Discover practical L&amp;D resources</span>
-            </div>
-            <span className="shortcut-arrow">→</span>
-          </a>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-6 py-16 md:px-10 md:py-24">
+      {/* About Section */}
+      <section className="mx-auto max-w-6xl px-6 py-20 md:px-10">
         <div className="max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-400">About GG LearnLabs</p>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight md:text-5xl">Turning learning data into meaningful insights.</h2>
+          <p className="text-sm font-semibold uppercase tracking-widest text-blue-400">
+            About GG LearnLabs
+          </p>
+
+          <h1 className="mt-4 text-3xl font-bold tracking-tight md:text-5xl">
+            Turning learning data into meaningful insights.
+          </h1>
+
           <p className="mt-6 text-lg leading-8 text-slate-400">
-            GG LearnLabs is a growing collection of practical tools created to support Learning &amp;
-            Development professionals in evaluating training impact, identifying improvement areas and
-            making more informed decisions.
+            GG LearnLabs is a growing collection of practical tools created to
+            support Learning &amp; Development professionals in evaluating
+            training impact, identifying improvement areas and making more
+            informed decisions.
           </p>
         </div>
       </section>
 
-      <section id="tools" className="border-y border-white/10 bg-slate-900/50">
-        <div className="mx-auto max-w-6xl px-6 py-16 md:px-10 md:py-24">
+      {/* Tools Section */}
+      <section
+        id="tools"
+        className="border-y border-white/10 bg-slate-900/50"
+      >
+        <div className="mx-auto max-w-6xl px-6 py-20 md:px-10">
           <div className="mb-10">
-            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-400">Learning Tools</p>
-            <h2 className="mt-4 text-3xl font-bold md:text-4xl">Explore GG LearnLabs</h2>
-            <p className="mt-4 max-w-2xl leading-7 text-slate-400">
-              Start with our Training Effectiveness Calculator to measure overall training performance
-              across multiple learning metrics.
+            <p className="text-sm font-semibold uppercase tracking-widest text-blue-400">
+              Learning Tools
+            </p>
+
+            <h2 className="mt-4 text-3xl font-bold md:text-4xl">
+              Explore GG LearnLabs
+            </h2>
+
+            <p className="mt-4 max-w-2xl text-slate-400">
+              Start with our Training Effectiveness Calculator to measure
+              overall training performance across multiple learning metrics.
             </p>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-            <a href="/gg-learnlabs/calculator/" className="tool-card group">
-              <div className="tool-icon">📊</div>
-              <h3>Training Effectiveness Calculator</h3>
-              <p>
-                Measure training effectiveness using trainer observation, participant feedback,
-                knowledge assessment, learning application and attendance.
-              </p>
-              <span className="tool-link">Open Calculator <b>→</b></span>
-            </a>
 
-            <div className="tool-card">
-              <div className="tool-icon">🚀</div>
-              <h3>More Learning Tools Coming Soon</h3>
-              <p>
-                GG LearnLabs will continue to grow with practical tools, calculators and resources
-                to support Learning &amp; Development professionals.
+            {/* Calculator Card */}
+            <div className="rounded-2xl border border-white/10 bg-slate-900 p-8 transition hover:border-blue-400/50 hover:bg-slate-800">
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-blue-500/10 text-2xl">
+                📊
+              </div>
+
+              <h3 className="mt-6 text-2xl font-bold">
+                Training Effectiveness Calculator
+              </h3>
+
+              <p className="mt-4 leading-7 text-slate-400">
+                Measure training effectiveness using trainer observation,
+                participant feedback, knowledge assessment, learning
+                application and attendance.
               </p>
-              <span className="coming-soon">Coming Soon</span>
+
+              <a
+                href="/gg-learnlabs/calculator/"
+                className="mt-8 inline-flex items-center text-sm font-semibold text-blue-400 transition hover:text-blue-300"
+              >
+                Open Calculator →
+              </a>
             </div>
+
+            {/* Coming Soon Card */}
+            <div className="rounded-2xl border border-white/10 bg-slate-900 p-8">
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-purple-500/10 text-2xl">
+                🚀
+              </div>
+
+              <h3 className="mt-6 text-2xl font-bold">
+                More Learning Tools Coming Soon
+              </h3>
+
+              <p className="mt-4 leading-7 text-slate-400">
+                GG LearnLabs will continue to grow with practical tools,
+                calculators and resources to support Learning &amp; Development
+                professionals.
+              </p>
+
+              <div className="mt-8 inline-flex rounded-full border border-white/10 px-4 py-2 text-sm text-slate-400">
+                Coming Soon
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-16 md:px-10 md:py-24">
+      {/* How It Works */}
+      <section className="mx-auto max-w-6xl px-6 py-20 md:px-10">
         <div className="mb-12">
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-400">How It Works</p>
-          <h2 className="mt-4 text-3xl font-bold md:text-4xl">Simple. Practical. Insightful.</h2>
+          <p className="text-sm font-semibold uppercase tracking-widest text-blue-400">
+            How It Works
+          </p>
+
+          <h2 className="mt-4 text-3xl font-bold md:text-4xl">
+            Simple. Practical. Insightful.
+          </h2>
         </div>
+
         <div className="grid gap-8 md:grid-cols-3">
-          {[
-            ["1", "Enter Training Details", "Add the training information, trainer details, department and participant count."],
-            ["2", "Add Effectiveness Scores", "Enter scores for key training effectiveness parameters."],
-            ["3", "Get Actionable Insights", "Review the overall effectiveness score, performance breakdown and improvement opportunities."],
-          ].map(([number, title, text]) => (
-            <div key={number} className="how-card">
-              <span className="how-number">{number}</span>
-              <h3>{title}</h3>
-              <p>{text}</p>
+
+          {/* Step 1 */}
+          <div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 font-bold">
+              1
             </div>
-          ))}
+
+            <h3 className="mt-5 text-xl font-semibold">
+              Enter Training Details
+            </h3>
+
+            <p className="mt-3 leading-7 text-slate-400">
+              Add the training information, trainer details, department and
+              participant count.
+            </p>
+          </div>
+
+          {/* Step 2 */}
+          <div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 font-bold">
+              2
+            </div>
+
+            <h3 className="mt-5 text-xl font-semibold">
+              Add Effectiveness Scores
+            </h3>
+
+            <p className="mt-3 leading-7 text-slate-400">
+              Enter scores for the key training effectiveness parameters and
+              assess performance across multiple learning measures.
+            </p>
+          </div>
+
+          {/* Step 3 */}
+          <div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 font-bold">
+              3
+            </div>
+
+            <h3 className="mt-5 text-xl font-semibold">
+              Get Actionable Insights
+            </h3>
+
+            <p className="mt-3 leading-7 text-slate-400">
+              Review the overall effectiveness score, performance breakdown and
+              key opportunities for improvement.
+            </p>
+          </div>
+
         </div>
       </section>
 
-      <section id="resources" className="border-t border-white/10 bg-slate-900/50">
-        <div className="mx-auto max-w-6xl px-6 py-16 text-center md:px-10 md:py-24">
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-400">Get Started</p>
-          <h2 className="mt-4 text-3xl font-bold md:text-5xl">Ready to measure your training effectiveness?</h2>
-          <p className="mx-auto mt-5 max-w-2xl leading-7 text-slate-400">
-            Turn your training data into a structured effectiveness assessment with actionable insights.
+      {/* Resources Section */}
+      <section
+        id="resources"
+        className="border-t border-white/10 bg-slate-900/50"
+      >
+        <div className="mx-auto max-w-6xl px-6 py-20 md:px-10">
+          <div className="max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-widest text-blue-400">
+              Resources
+            </p>
+
+            <h2 className="mt-4 text-3xl font-bold md:text-4xl">
+              More learning resources are on the way.
+            </h2>
+
+            <p className="mt-6 text-lg leading-8 text-slate-400">
+              GG LearnLabs will continue to evolve with practical calculators,
+              frameworks and resources designed to support Learning &amp;
+              Development professionals.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="border-t border-white/10">
+        <div className="mx-auto max-w-6xl px-6 py-20 text-center md:px-10">
+          <h2 className="text-3xl font-bold md:text-4xl">
+            Ready to measure your training effectiveness?
+          </h2>
+
+          <p className="mx-auto mt-4 max-w-2xl text-slate-400">
+            Start using the Training Effectiveness Calculator and turn your
+            training data into meaningful insights.
           </p>
-          <a href="/gg-learnlabs/calculator/" className="mt-8 inline-flex rounded-xl bg-blue-600 px-8 py-4 font-semibold text-white transition hover:bg-blue-500">
+
+          <a
+            href="/gg-learnlabs/calculator/"
+            className="mt-8 inline-flex items-center justify-center rounded-xl bg-blue-600 px-8 py-4 font-semibold text-white transition hover:bg-blue-500"
+          >
             Open Calculator →
           </a>
         </div>
       </section>
 
-      <footer className="border-t border-white/10 bg-slate-950">
+      {/* Footer */}
+      <footer className="border-t border-white/10">
         <div className="mx-auto max-w-6xl px-6 py-8 text-center text-sm text-slate-500 md:px-10">
-          © {new Date().getFullYear()} GG LearnLabs. Practical tools for Learning &amp; Development.
+          © {new Date().getFullYear()} GG LearnLabs. Practical tools for
+          Learning &amp; Development.
         </div>
       </footer>
-    </main>
+
+    </div>
   );
 }
